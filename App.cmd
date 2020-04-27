@@ -1,0 +1,1 @@
+java -jar -DBUILD_DT=2018-12-31 target\heroku-demo-0.0.1-SNAPSHOT.jar
