@@ -9,25 +9,7 @@ public class WebAppConfig {
 
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        if ((CKey.SQL_DATABASE == CKey.LOCAL_MYSQL) || (CKey.SQL_DATABASE == CKey.REMOTE_MYSQL)) {
-//            dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-//            dataSource.setUrl("jdbc:mysql://mysql:3306/sampledb");
-//            dataSource.setUsername("sa");
-//            dataSource.setPassword("admin");
-
-            if (getEnv.checkLocalPC() == true) {
-                String Local_mysql = "jdbc:mysql://localhost:3306/sampledb?useSSL=true";
-                dataSource.setUrl(Local_mysql);
-
-                dataSource.setDriverClassName("org.postgresql.Driver");
-                dataSource.setUrl("jdbc:postgresql://localhost:5432/sampledb");
-                dataSource.setUsername("postgres");
-                dataSource.setPassword("admin");
-            }
-            ServiceAFweb.URL_LOCALDB = dataSource.getUrl();
-
-        }
-        if (CKey.SQL_DATABASE == CKey.MYSQL) {
+         if (CKey.SQL_DATABASE == CKey.MYSQL) {
           
 //eddy corp            
 //sh-4.2$ env | grep MYSQL

@@ -8,7 +8,6 @@ package com.afweb.process;
 import com.afweb.model.*;
 
 import com.afweb.service.ServiceAFweb;
-import com.afweb.service.ServiceRemoteDB;
 import com.afweb.util.CKey;
 import com.afweb.util.TimeConvertion;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,7 +40,7 @@ public class AccountDB {
 
     private static JdbcTemplate jdbcTemplate;
     private static DataSource dataSource;
-    private ServiceRemoteDB remoteDB = new ServiceRemoteDB();
+
 
     /**
      * @return the dataSource
@@ -107,11 +106,6 @@ public class AccountDB {
 
         try {
             sql = ServiceAFweb.getSQLLengh(sql, length);
-
-            if (checkCallRemoteSQL_Mysql() == true) {
-                ArrayList custList = remoteDB.getCustomerListSqlRemoteDB_RemoteMysql(sql);
-                return custList;
-            }
 
             List<CustomerObj> entries = new ArrayList<>();
             entries.clear();
@@ -331,10 +325,7 @@ public class AccountDB {
 
     private ArrayList getCommBySQL(String sql) {
         try {
-            if (checkCallRemoteSQL_Mysql() == true) {
-                ArrayList accList = remoteDB.getCommListSqlRemoteDB_RemoteMysql(sql);
-                return accList;
-            }
+
             List<CommObj> entries = new ArrayList<>();
             entries.clear();
             entries = this.jdbcTemplate.query(sql, new RowMapper() {
@@ -370,11 +361,6 @@ public class AccountDB {
     public String getAllSQLqueryDBSQL(String sql) {
         try {
             List retList = null;
-            if (checkCallRemoteSQL_Mysql() == true) {
-                String retST = remoteDB.getAllSQLqueryRemoteDB_RemoteMysql(sql);
-                return retST;
-            }
-
             retList = this.jdbcTemplate.queryForList(sql);
             String retST = new ObjectMapper().writeValueAsString(retList);
             return retST;
@@ -474,15 +460,6 @@ public class AccountDB {
     }
 
     public ArrayList getAllIdSQL(String sql) {
-        if (checkCallRemoteSQL_Mysql() == true) {
-            ArrayList nnList;
-            try {
-                nnList = remoteDB.getAllIdSqlRemoteDB_RemoteMysql(sql);
-                return nnList;
-            } catch (Exception ex) {
-            }
-            return null;
-        }
 
         try {
             List<String> entries = new ArrayList<>();
@@ -501,15 +478,6 @@ public class AccountDB {
     }
 
     public ArrayList getAllUserNameSQL(String sql) {
-        if (checkCallRemoteSQL_Mysql() == true) {
-            ArrayList nnList;
-            try {
-                nnList = remoteDB.getAllUserNameSqlRemoteDB_RemoteMysql(sql);
-                return nnList;
-            } catch (Exception ex) {
-            }
-            return null;
-        }
 
         try {
             List<String> entries = new ArrayList<>();
@@ -577,10 +545,6 @@ public class AccountDB {
     }
 
     public void processUpdateDB(String sqlCMD) throws Exception {
-        if (checkCallRemoteSQL_Mysql() == true) {
-            int count = remoteDB.postExecuteRemoteDB_RemoteMysql(sqlCMD);
-            return;
-        }
 
 //        logger.info("> processUpdateDB " + sqlCMD);
         getJdbcTemplate().update(sqlCMD);
@@ -588,11 +552,6 @@ public class AccountDB {
 
     public void processExecuteDB(String sqlCMD) throws Exception {
 //       logger.info("> processExecuteDB " + sqlCMD);
-        if (checkCallRemoteSQL_Mysql() == true) {
-            int count = remoteDB.postExecuteRemoteDB_RemoteMysql(sqlCMD);
-            return;
-        }
-
         getJdbcTemplate().execute(sqlCMD);
     }
 
