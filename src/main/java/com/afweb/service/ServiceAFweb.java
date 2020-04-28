@@ -368,40 +368,25 @@ public class ServiceAFweb {
             }
         }
         if (CKey.UI_ONLY == true) {
-            if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
-                //// process monitor
-                SsnsRegression regression = new SsnsRegression();
-                regression.processMonitorTesting(this);
-            }
+//            if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
+//                //// process monitor
+//                SsnsRegression regression = new SsnsRegression();
+//                regression.processMonitorTesting(this);
+//            }
             return;
         }
 
-        String LockName = null;
-        try {
-            Calendar dateNow = TimeConvertion.getCurrentCalendar();
-            long lockDateValue = dateNow.getTimeInMillis();
 
-            LockName = "LOCK_" + ServiceAFweb.getServerObj().getServerName();
-//            long lockReturn = setLockNameProcess(LockName, ConstantKey.SRV_LOCKTYPE, lockDateValue, "ProcessTimerCnt " + getServerObj().getProcessTimerCnt());
-//
-//            if (CKey.NN_DEBUG == true) {
-//                lockReturn = 1;
-//            }
-//            if (lockReturn == 0) {
-//                return;
-//            }
+        try {
             if (getServerObj().getProcessTimerCnt() < 0) {
                 getServerObj().setProcessTimerCnt(0);
             }
             getServerObj().setProcessTimerCnt(getServerObj().getProcessTimerCnt() + 1);
 
-//            logger.info("> processTimer " + getServerObj().getProcessTimerCnt());
             if (getEnv.checkLocalPC() == true) {
                 if (CKey.NN_DEBUG == true) {
                     if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
                         //10 Sec * 5 ~ 1 minutes
-//                        processETL();
-//                        return;
                     }
                 }
             }
@@ -434,10 +419,6 @@ public class ServiceAFweb {
 
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
 
-                //// process monitor
-                SsnsRegression regression = new SsnsRegression();
-                regression.processMonitorTesting(this);
-
             } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
 
             } else if ((getServerObj().getProcessTimerCnt() % 2) == 0) {
@@ -449,7 +430,7 @@ public class ServiceAFweb {
         } catch (Exception ex) {
             logger.info("> processTimer Exception" + ex.getMessage());
         }
-        removeNameLock(LockName, ConstantKey.SRV_LOCKTYPE);
+
     }
 
     /**
