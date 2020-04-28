@@ -366,182 +366,6 @@ public class ServiceAFweb {
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
-                    boolean clearssnsflag = false;
-                    if (clearssnsflag == true) {
-//                        getSsnsDataImp().updateSsnsDataAllOpenStatus();
-
-//                        getSsnsDataImp().deleteSsnsAccApp(SsnsService.APP_PRODUCT);
-//                        getSsnsDataImp().deleteSsnsAccApp(SsnsService.APP_APP);
-//                        getSsnsDataImp().deleteSsnsDataApp(SsnsService.APP_APP);
-//                        getSsnsDataImp().updateSsnsDataOpenStatus(SsnsService.APP_WIFI);
-//                        getSsnsDataImp().deleteSsnsDataApp(SsnsService.APP_WIFI);
-//                        getSsnsDataImp().deleteSsnsAccApp(SsnsService.APP_WIFI);
-                    }
-                    
-                    boolean ETLsplunkFlat = false;
-                    if (ETLsplunkFlat == true) {
-                        
-                        boolean clearsplunkflag = false;
-                        if (clearsplunkflag == true) {
-                            this.getSsnsDataImp().deleteAllSsnsData(0);
-                        }
-                        
-                        for (int i = 0; i < 10; i++) {
-                            processETL();
-                        }
-                    }
-/////////
-/////////                    
-                    boolean procallflag = false;
-                    if (procallflag == true) {
-                        for (int i = 0; i < 10; i++) {
-                            processFeatureApp();
-                            processFeatureProd();
-                            processFeatureWifi();
-                            processFeatureTTVC();
-                        }
-                    }
-                    
-                    boolean restoreSsnsAccFlag = false; // work for remote d
-                    if (restoreSsnsAccFlag == true) {
-                        logger.info("restoreSsnsAccDB start");
-                        this.getSsnsDataImp().deleteAllSsnsAcc(0);
-                        boolean retSatus = getAccountImp().restoreSsnsAccDB(this);
-                        logger.info("restoreSsnsAccDB end");
-                    }
-
-//                    boolean restoreSsnsDataFlag = false; // work for remote d
-//                    if (restoreSsnsDataFlag == true) {
-//                        this.getSsnsDataImp().deleteAllSsnsData(0);
-//                        boolean retSatus = getAccountImp().restoreSsnsDataDB(this);
-//                    }
-///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////   
-                    boolean monflag = false;
-                    if (monflag == true) {
-//                        this.getSsnsDataImp().deleteAllSsReport(0);
-                        SsnsRegression regression = new SsnsRegression();
-                        String name = CKey.ADMIN_USERNAME;
-                        ArrayList<SsReport> ret = new ArrayList();
-                        /////////Regression
-                        name = "GUEST";
-                        
-                        getSsReportRegressionStart(name, null, APP_APP, DEF_LABURL); //"http://L097105:8080");
-                        ret = getSsReportRegression(name, null);
-                        for (int i = 0; i < 10; i++) {
-                            regression.processMonitorTesting(this);
-                            if (i == 2) {
-                                regression.stopMonitor(this, name);
-                            }
-                            ret = getSsReportRegression(name, null);
-                        }
-                        ret = getSsReportRegression(name, null);
-
-                        /////////monitor
-//                        ret = getSsReportMon(name, null);
-//                        regression.startMonitor(this, name);
-//
-//                        for (int i = 0; i < 10; i++) {
-//                            regression.processMonitorTesting(this);
-//                            if (i == 2) {
-//                                regression.stopMonitor(this, name);
-//                            }
-//                            ret = getSsReportMon(name, null);
-//                        }
-//                        ret = getSsReportMon(name, null);
-                    }
-/////////
-/////////
-                    boolean procflag = false;
-                    if (procflag == true) {
-                        
-                        SsnsService ss = new SsnsService();
-                        String feature = "";
-                        boolean prodflag = true;
-                        if (prodflag == true) {
-                            ArrayList ttvNameArrayTemp = getAllOpenProductArray();
-                            if (ttvNameArrayTemp != null) {
-                                for (int i = 0; i < ttvNameArrayTemp.size(); i++) {
-                                    String idSt = (String) ttvNameArrayTemp.get(i);
-                                    
-                                    int id = Integer.parseInt(idSt);
-                                    SsnsData data = getSsnsDataImp().getSsnsDataObjByID(id);
-                                    feature = ss.getFeatureSsnsProdiuctInventory(data);
-
-//                                    ArrayList<SsnsData> dataList = getSsnsDataImp().getSsnsDataObjByUUIDList("cf0adc01-588e-4717-b87b-876441d79a1e");
-//                                    feature = ss.getFeatureSsnsProdiuctInventory(dataList.get(0));
-                                }
-                            }
-                        }
-                    }
-/////////
-/////////
-                    boolean wififlag = false;
-                    if (wififlag == true) {
-
-//                        getSsnsDataImp().updateSsnsDataOpenStatus(SsnsService.APP_WIFI);
-                        SsnsService ss = new SsnsService();
-                        String feature = "";
-                        ArrayList appNameArrayTemp = getAllOpenWifiArray();
-                        if (appNameArrayTemp != null) {
-                            for (int i = 0; i < appNameArrayTemp.size(); i++) {
-                                String idSt = (String) appNameArrayTemp.get(i);
-                                
-                                int id = Integer.parseInt(idSt);
-                                SsnsData data = getSsnsDataImp().getSsnsDataObjByID(id);
-                                feature = ss.getFeatureSsnsWifi(data);
-
-//                                    ArrayList<SsnsData> dataList = getSsnsDataImp().getSsnsDataObjByUUIDList("0f8825e8-d628-405e-83d6-3ff63dd82654");
-//                                    ss.getFeatureSsnsWifi(dataList.get(0));
-                            }
-                        }
-                    }
-/////////
-/////////
-                    boolean appflag = false;
-                    if (appflag == true) {
-
-//                        getSsnsDataImp().updateSsnsDataAllOpenStatus();
-//                        getSsnsDataImp().deleteSsnsAccApp(SsnsService.APP_APP);
-                        SsnsService ss = new SsnsService();
-                        String feature = "";
-                        ArrayList appNameArrayTemp = getAllOpenAppArray();
-                        if (appNameArrayTemp != null) {
-                            for (int i = 0; i < appNameArrayTemp.size(); i++) {
-                                String idSt = (String) appNameArrayTemp.get(i);
-                                
-                                int id = Integer.parseInt(idSt);
-                                SsnsData data = getSsnsDataImp().getSsnsDataObjByID(id);
-                                feature = ss.getFeatureSsnsAppointment(data);
-                            }
-                        }
-                    }
-                    
-                    boolean ttvReqflag = false;
-                    if (ttvReqflag == true) {
-//                        getSsnsDataImp().updateSsnsDataOpenStatus(SsnsService.APP_TTVSUB);
-//                        getSsnsDataImp().updateSsnsDataOpenStatus(SsnsService.APP_TTVREQ);                        
-//                        getSsnsDataImp().deleteSsnsAccApp(SsnsService.APP_TTVC);
-
-                        for (int m = 0; m < 20; m++) {
-                            SsnsService ss = new SsnsService();
-                            String feature = "";
-                            ArrayList appNameArrayTemp = getAllOpenTTVCArray();
-                            if (appNameArrayTemp != null) {
-                                for (int i = 0; i < appNameArrayTemp.size(); i++) {
-                                    String idSt = (String) appNameArrayTemp.get(i);
-                                    
-                                    int id = Integer.parseInt(idSt);
-                                    SsnsData data = getSsnsDataImp().getSsnsDataObjByID(id);
-                                    feature = ss.getFeatureSsnsTTVC(data);
-
-//                                    ArrayList<SsnsData> dataList = getSsnsDataImp().getSsnsDataObjByUUIDList("28d552b9-df3d-4bd8-8a22-3ff63dd8b337");
-//                                    feature = ss.getFeatureSsnsTTVC(dataList.get(1));
-                                }
-                            }
-                        }
-                    }
 
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////  
@@ -593,18 +417,18 @@ public class ServiceAFweb {
             }
             if ((getServerObj().getProcessTimerCnt() % 13) == 0) {
                 ;
-                processFeatureProd();
+
             } else if ((getServerObj().getProcessTimerCnt() % 11) == 0) {
                 ;
-                processFeatureApp();
+
             } else if ((getServerObj().getProcessTimerCnt() % 7) == 0) {
                 //////require to save memory
                 System.gc();
                 //////require to save memory
-                processFeatureWifi();
+
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
                 ;
-                processFeatureTTVC();
+
 
                 //// process monitor
                 SsnsRegression regression = new SsnsRegression();
@@ -612,7 +436,7 @@ public class ServiceAFweb {
                 
             } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
                 //10 Sec * 5 ~ 1 minutes
-                processETL();
+
                 
             } else if ((getServerObj().getProcessTimerCnt() % 2) == 0) {
                 
