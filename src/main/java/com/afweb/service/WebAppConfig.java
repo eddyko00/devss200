@@ -47,7 +47,6 @@ public class WebAppConfig {
 //sh-4.2$
 
 
-
             dataSource.setDriverClassName("com.mysql.jdbc.Driver");
             String dsUrl = "jdbc:mysql://100.65.134.53:3306/sampledb?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false";
             dataSource.setUrl(dsUrl);
