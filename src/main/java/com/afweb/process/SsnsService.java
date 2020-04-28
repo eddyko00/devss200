@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -1477,7 +1478,7 @@ public class SsnsService {
 //                con = (HttpsURLConnection) request.openConnection(proxy);
 //                //////Add Proxy 
 //            } else {
-            con = (HttpsURLConnection) request.openConnection();
+            con = (HttpsURLConnection) request.openConnection(Proxy.NO_PROXY);
 //            }
 
 //            if (URLPath.indexOf(":8080") == -1) {
@@ -1600,7 +1601,7 @@ public class SsnsService {
 //                con = (HttpURLConnection) request.openConnection(proxy);
 //                //////Add Proxy 
 //            } else {
-            con = (HttpURLConnection) request.openConnection();
+            con = (HttpURLConnection) request.openConnection(Proxy.NO_PROXY);
 //            }
 
 //            if (URLPath.indexOf(":8080") == -1) {
