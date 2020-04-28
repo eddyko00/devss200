@@ -134,6 +134,7 @@ public class ServiceAFweb {
         SERVERDB_URL = URL_PATH_OP;
 
         String URL_PATH = ServiceAFweb.URL_PATH_OP_DB_PHP1 + CKey.WEBPOST_OP_PHP;
+        ServiceRemoteDB.setURL_PATH(URL_PATH);
 
         if (FileLocalPath.length() == 0) {
             FileLocalPath = CKey.FileLocalPathTemp;
@@ -369,13 +370,10 @@ public class ServiceAFweb {
         }
         if (CKey.UI_ONLY == true) {
 //            if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
-//                //// process monitor
-//                SsnsRegression regression = new SsnsRegression();
-//                regression.processMonitorTesting(this);
+//
 //            }
             return;
         }
-
 
         try {
             if (getServerObj().getProcessTimerCnt() < 0) {
@@ -383,10 +381,13 @@ public class ServiceAFweb {
             }
             getServerObj().setProcessTimerCnt(getServerObj().getProcessTimerCnt() + 1);
 
+//            logger.info("> processTimer " + getServerObj().getProcessTimerCnt());
             if (getEnv.checkLocalPC() == true) {
                 if (CKey.NN_DEBUG == true) {
                     if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
                         //10 Sec * 5 ~ 1 minutes
+//                        processETL();
+//                        return;
                     }
                 }
             }
@@ -409,8 +410,10 @@ public class ServiceAFweb {
                 // 30 sec per tick ~  for 3 hour   60 s*60 *3 /30 
             }
             if ((getServerObj().getProcessTimerCnt() % 13) == 0) {
+                ;
 
             } else if ((getServerObj().getProcessTimerCnt() % 11) == 0) {
+                ;
 
             } else if ((getServerObj().getProcessTimerCnt() % 7) == 0) {
                 //////require to save memory
@@ -418,8 +421,10 @@ public class ServiceAFweb {
                 //////require to save memory
 
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
+                ;
 
             } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
+                //10 Sec * 5 ~ 1 minutes
 
             } else if ((getServerObj().getProcessTimerCnt() % 2) == 0) {
 
@@ -430,7 +435,6 @@ public class ServiceAFweb {
         } catch (Exception ex) {
             logger.info("> processTimer Exception" + ex.getMessage());
         }
-
     }
 
     /**
@@ -510,9 +514,66 @@ public class ServiceAFweb {
 //            output.add("  ");
         }
     }
-////////////////////////////////
+/////////////////////
 
-/////////////////////////////////
+    ArrayList<String> getAllOpenTTVCArray() {
+        String app = SsnsService.APP_TTVREQ;
+        String ret = "parameter";
+        int status = ConstantKey.OPEN;
+        ArrayList<String> retList = new ArrayList();
+        ArrayList<String> reqList = getSsnsDataImp().getSsnsDataIDList(app, ret, status, 15);
+        app = SsnsService.APP_TTVSUB;
+        ArrayList<String> subList = getSsnsDataImp().getSsnsDataIDList(app, ret, status, 15);
+        retList.addAll(reqList);
+        retList.addAll(subList);
+        return retList;
+    }
+
+    ArrayList<String> ttvcNameArray = new ArrayList();
+
+    private ArrayList updateTTVCNameArray() {
+        if (ttvcNameArray != null && ttvcNameArray.size() > 0) {
+            return ttvcNameArray;
+        }
+        ArrayList ttvNameArrayTemp = getAllOpenTTVCArray();
+        if (ttvNameArrayTemp != null) {
+            ttvcNameArray = ttvNameArrayTemp;
+        }
+        return ttvcNameArray;
+    }
+
+    public int proceSssendRequestObj(ArrayList<String> sqlCMDList) {
+        int MAXPostSize = 5;
+        int postSize = 0;
+        ArrayList<String> sqlSendList = new ArrayList();
+        for (int i = 0; i < sqlCMDList.size(); i++) {
+            postSize++;
+            if (postSize > MAXPostSize) {
+                try {
+                    int ret = sendRequestObj(sqlSendList);
+                    if (ret == 0) {
+                        return ret;
+                    }
+                    postSize = 0;
+                    sqlSendList.clear();
+
+                } catch (Exception ex) {
+                    logger.info("postExecuteListRemoteDB_Mysql exception " + ex);
+                    return 0;
+                }
+            }
+            sqlSendList.add(sqlCMDList.get(i));
+        }
+        try {
+            int ret = sendRequestObj(sqlSendList);
+            return ret;
+        } catch (Exception ex) {
+            logger.info("postExecuteListRemoteDB_Mysql exception " + ex);
+        }
+        return 0;
+
+    }
+
     public static String replaceAll(String oldStr, String newStr, String inString) {
         while (true) {
             int start = inString.indexOf(oldStr);
@@ -536,9 +597,56 @@ public class ServiceAFweb {
         return sb.toString();
     }
 
+    public static Calendar parseDateTimeTTV(String date) {
+//    11 Apr 2020 14:36:47       
+        String tzid = "America/New_York"; //EDT
+        TimeZone tz = TimeZone.getTimeZone(tzid);
+        String datetime = date;
+        SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
+
+        format.setTimeZone(tz);
+        try {
+            Calendar c = Calendar.getInstance();
+            c.setTime(format.parse(datetime));
+
+            return c;
+
+        } catch (ParseException ex) {
+//            logger.info("Failed to parse datetime: " + datetime + " " + ex);
+
+        }
+        return null;
+    }
+
+    public static Calendar parseDateTime(String date, String time) {
+//splunk 0 "2020-04-09
+//splunk 1 17:28:55.622        
+        String tzid = "America/New_York"; //EDT
+        TimeZone tz = TimeZone.getTimeZone(tzid);
+//        String[] timeList = time.split(":");
+        String datetime = date + " " + time; //+ timeList[0] + ":" + timeList[1] + ":" + timeList[2];
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+        format.setTimeZone(tz);
+        try {
+            Calendar c = Calendar.getInstance();
+            c.setTime(format.parse(datetime));
+
+            return c;
+
+        } catch (ParseException ex) {
+//            logger.info("Failed to parse datetime: " + datetime + " " + ex);
+
+        }
+        return null;
+    }
+
     public int sendRequestObj(ArrayList<String> writeSQLArray) {
 //        logger.info("> sendRequestObj " + writeSQLArray.size());
         try {
+            if (writeSQLArray.size() == 0) {
+                return 1;
+            }
             RequestObj sqlObj = new RequestObj();
             sqlObj.setCmd(ServiceAFweb.UpdateSQLList + "");
             String st = new ObjectMapper().writeValueAsString(writeSQLArray);
@@ -822,6 +930,68 @@ public class ServiceAFweb {
         return ret;
     }
 
+    public int getSsReportMonRegressionStop(String EmailUserName, String IDSt) {
+
+        if (getServerObj().isSysMaintenance() == true) {
+            return 0;
+        }
+        CustomerObj custObj = getAccountImp().getCustomerPassword(EmailUserName, null);
+        if (custObj == null) {
+            return 0;
+        }
+        if (IDSt != null) {
+            if (IDSt.equals(custObj.getId() + "") != true) {
+                return 0;
+            }
+        }
+        if (custObj.getType() == CustomerObj.INT_ADMIN_USER) {
+            return 0;
+        }
+        String name = EmailUserName;
+        SsnsRegression regression = new SsnsRegression();
+        return regression.stopMonitor(this, name);
+    }
+
+    public int getSsReportMonRegressionStart(String EmailUserName, String IDSt, String urlSt) {
+
+        if (getServerObj().isSysMaintenance() == true) {
+            return 0;
+        }
+        CustomerObj custObj = getAccountImp().getCustomerPassword(EmailUserName, null);
+        if (custObj == null) {
+            return 0;
+        }
+        if (IDSt != null) {
+            if (IDSt.equals(custObj.getId() + "") != true) {
+                return 0;
+            }
+        }
+        if (custObj.getType() == CustomerObj.INT_ADMIN_USER) {
+            return 0;
+        }
+        String name = EmailUserName;
+        SsnsRegression regression = new SsnsRegression();
+
+        Calendar dateNow = TimeConvertion.getCurrentCalendar();
+        long lockDateValue = dateNow.getTimeInMillis();
+        String LockName = "MONSTART_" + EmailUserName;
+
+        int ret = 0;
+        try {
+            int lockReturn = setLockNameProcess(LockName, ConstantKey.MONSTART_LOCKTYPE, lockDateValue, ServiceAFweb.getServerObj().getSrvProjName() + " getSsReportMonStart");
+            if (lockReturn == 0) {
+                return 0;
+            }
+            ret = regression.startMonitorRegression(this, name, urlSt);
+            // clear old report
+            getSsReportMonClearReport(name, IDSt);
+
+        } catch (Exception ex) {
+        }
+        removeNameLock(LockName, ConstantKey.MONSTART_LOCKTYPE);
+        return ret;
+    }
+
     public int getSsReportMonStart(String EmailUserName, String IDSt) {
 
         if (getServerObj().isSysMaintenance() == true) {
@@ -854,7 +1024,7 @@ public class ServiceAFweb {
             }
             ret = regression.startMonitor(this, name);
             // clear old report
-            getSsReportMonClearReport(EmailUserName, IDSt);
+            getSsReportMonClearReport(name, IDSt);
 
         } catch (Exception ex) {
         }
@@ -950,6 +1120,14 @@ public class ServiceAFweb {
 
     }
 
+    public ArrayList<String> ServerSendURL(String urlSt) {
+        ArrayList<String> inList = new ArrayList();
+        SsnsService ss = new SsnsService();
+        String output = ss.SendSsnsTestURL(urlSt, inList);
+        inList.add(output);
+        return inList;
+    }
+
     public ArrayList<SsReport> getSsReportMon(String EmailUserName, String IDSt) {
 
         if (getServerObj().isSysMaintenance() == true) {
@@ -967,10 +1145,16 @@ public class ServiceAFweb {
         String name = CKey.ADMIN_USERNAME;
         ArrayList<SsReport> ssReportList = new ArrayList();
         ArrayList<SsReport> ssUserReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_USER);
+        if (ssUserReportObjList == null) {
+            return ssReportList;
+        }
         ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_REPORT);
-
-        ssReportList.addAll(ssUserReportObjList);
-        ssReportList.addAll(ssReportObjList);
+        if (ssUserReportObjList != null) {
+            ssReportList.addAll(ssUserReportObjList);
+        }
+        if (ssReportObjList != null) {
+            ssReportList.addAll(ssReportObjList);
+        }
         return ssReportList;
 
     }
@@ -1222,7 +1406,7 @@ public class ServiceAFweb {
         return null;
     }
 
-    public ArrayList<String> testSsnsprodTTVCByIdRT(String EmailUserName, String IDSt, String PIDSt, String prod, String Oper) {
+    public ArrayList<String> testSsnsprodTTVCByIdRT(String EmailUserName, String IDSt, String PIDSt, String prod, String Oper, String LABURL) {
         if (getServerObj().isSysMaintenance() == true) {
             return null;
         }
@@ -1243,7 +1427,7 @@ public class ServiceAFweb {
                 SsnsService ss = new SsnsService();
                 String feat = "";
                 if ((Oper.equals(TT_GetSub) || Oper.equals(TT_Vadulate) || Oper.equals(TT_Quote) || Oper.equals(TT_SaveOrder))) {
-                    feat = ss.TestFeatureSsnsProdTTVC(ssnsAccObj, outputList, Oper);
+                    feat = ss.TestFeatureSsnsProdTTVC(ssnsAccObj, outputList, Oper, LABURL);
 //                    logger.info("> testSsnsprodTTVCByIdRT " + Oper + " feat " + feat);
                     if (((feat == null) || (feat.length() == 0)) || (feat.indexOf(":testfailed") != -1)) {
                         // disabled this Acc Obj
@@ -1269,20 +1453,20 @@ public class ServiceAFweb {
         return null;
     }
 
-    public ArrayList<String> testSsnsprodPRocessByIdRT(String EmailUserName, String IDSt, String PIDSt, String prod, String Oper) {
+    public ArrayList<String> testSsnsprodPRocessByIdRT(String EmailUserName, String IDSt, String PIDSt, String prod, String Oper, String LABURL) {
         if (prod.equals(SsnsService.APP_APP)) {
-            return this.testSsnsprodAppByIdRT(EmailUserName, IDSt, PIDSt, prod, Oper);
+            return this.testSsnsprodAppByIdRT(EmailUserName, IDSt, PIDSt, prod, Oper, LABURL);
         } else if (prod.equals(SsnsService.APP_TTVC)) {
-            return this.testSsnsprodTTVCByIdRT(EmailUserName, IDSt, PIDSt, prod, Oper);
+            return this.testSsnsprodTTVCByIdRT(EmailUserName, IDSt, PIDSt, prod, Oper, LABURL);
         } else if (prod.equals(SsnsService.APP_WIFI)) {
-            return this.testSsnsprodWifiByIdRT(EmailUserName, IDSt, PIDSt, prod, Oper);
+            return this.testSsnsprodWifiByIdRT(EmailUserName, IDSt, PIDSt, prod, Oper, LABURL);
         } else if (prod.equals(SsnsService.APP_PRODUCT)) {
-            return testSsnsprodByIdRT(EmailUserName, IDSt, PIDSt, prod, Oper);
+            return testSsnsprodByIdRT(EmailUserName, IDSt, PIDSt, prod, Oper, LABURL);
         }
         return null;
     }
 
-    public String testSsnsprodWifiByIdRTTtest(String EmailUserName, String IDSt, String PIDSt, String prod, String Oper) {
+    public String testSsnsprodWifiByIdRTTtest(String EmailUserName, String IDSt, String PIDSt, String prod, String Oper, String LABURL) {
         if (getServerObj().isSysMaintenance() == true) {
             return "";
         }
@@ -1304,7 +1488,7 @@ public class ServiceAFweb {
 
                 if (Oper.equals(SsnsService.WI_GetDevice) || Oper.equals(SsnsService.WI_GetDeviceStatus)) {
                     String oper = accObj.getRet();
-                    String featRet = ss.TestFeatureSsnsProdWifi(accObj, response, oper);
+                    String featRet = ss.TestFeatureSsnsProdWifi(accObj, response, oper, LABURL);
                     if (response != null) {
                         if (response.size() > 3) {
                             String feat = response.get(0);
@@ -1347,7 +1531,7 @@ public class ServiceAFweb {
         return "";
     }
 
-    public ArrayList<String> testSsnsprodWifiByIdRT(String EmailUserName, String IDSt, String PIDSt, String prod, String Oper) {
+    public ArrayList<String> testSsnsprodWifiByIdRT(String EmailUserName, String IDSt, String PIDSt, String prod, String Oper, String LABURL) {
         if (getServerObj().isSysMaintenance() == true) {
             return null;
         }
@@ -1369,7 +1553,7 @@ public class ServiceAFweb {
                 String feat = "";
 
                 if (Oper.equals(SsnsService.WI_GetDevice) || Oper.equals(SsnsService.WI_GetDeviceStatus)) {
-                    feat = ss.TestFeatureSsnsProdWifi(ssnsAccObj, outputList, Oper);
+                    feat = ss.TestFeatureSsnsProdWifi(ssnsAccObj, outputList, Oper, LABURL);
 //                    logger.info("> getSsnsprodAppByIdRT " + Oper + " feat " + feat);
                     if (((feat == null) || (feat.length() == 0)) || (feat.indexOf(":testfailed") != -1)) {
                         // disabled this Acc Obj
@@ -1395,7 +1579,7 @@ public class ServiceAFweb {
         return null;
     }
 
-    public ArrayList<String> testSsnsprodAppByIdRT(String EmailUserName, String IDSt, String PIDSt, String prod, String Oper) {
+    public ArrayList<String> testSsnsprodAppByIdRT(String EmailUserName, String IDSt, String PIDSt, String prod, String Oper, String LABURL) {
         if (getServerObj().isSysMaintenance() == true) {
             return null;
         }
@@ -1417,7 +1601,7 @@ public class ServiceAFweb {
                 String feat = "";
 
                 if (Oper.equals(SsnsService.APP_GET_APP) || Oper.equals(SsnsService.APP_GET_TIMES)) {
-                    feat = ss.TestFeatureSsnsProdApp(ssnsAccObj, outputList, Oper);
+                    feat = ss.TestFeatureSsnsProdApp(ssnsAccObj, outputList, Oper, LABURL);
 //                    logger.info("> getSsnsprodAppByIdRT " + Oper + " feat " + feat);
                     if (((feat == null) || (feat.length() == 0)) || (feat.indexOf(":testfailed") != -1)) {
                         // disabled this Acc Obj
@@ -1443,7 +1627,7 @@ public class ServiceAFweb {
         return null;
     }
 
-    public String testSsnsprodByIdRTtest(String EmailUserName, String IDSt, String PIDSt, String prod, String ProdOper) {
+    public String testSsnsprodByIdRTtest(String EmailUserName, String IDSt, String PIDSt, String prod, String ProdOper, String LABURL) {
         if (getServerObj().isSysMaintenance() == true) {
             return null;
         }
@@ -1467,7 +1651,7 @@ public class ServiceAFweb {
                 if (prod.equals(SsnsService.APP_PRODUCT)) {
                     String oper = accObj.getRet();
 
-                    String featRet = ss.TestFeatureSsnsProductInventory(accObj, response, oper);
+                    String featRet = ss.TestFeatureSsnsProductInventory(accObj, response, oper, LABURL);
                     if (response != null) {
                         if (response.size() > 3) {
                             String feat = response.get(0);
@@ -1510,7 +1694,7 @@ public class ServiceAFweb {
         return "";
     }
 
-    public ArrayList<String> testSsnsprodByIdRT(String EmailUserName, String IDSt, String PIDSt, String prod, String ProdOper) {
+    public ArrayList<String> testSsnsprodByIdRT(String EmailUserName, String IDSt, String PIDSt, String prod, String ProdOper, String LABURL) {
         if (getServerObj().isSysMaintenance() == true) {
             return null;
         }
@@ -1533,7 +1717,7 @@ public class ServiceAFweb {
                 if (prod.equals(SsnsService.APP_PRODUCT)) {
                     String oper = ssnsAccObj.getRet();
 
-                    feat = ss.TestFeatureSsnsProductInventory(ssnsAccObj, outputList, oper);
+                    feat = ss.TestFeatureSsnsProductInventory(ssnsAccObj, outputList, oper, LABURL);
                     if (((feat == null) || (feat.length() == 0)) || (feat.indexOf(":testfailed") != -1)) {
                         // disabled this Acc Obj
                         int type = ssnsAccObj.getType();

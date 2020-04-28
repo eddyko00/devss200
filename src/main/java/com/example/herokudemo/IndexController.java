@@ -59,6 +59,9 @@ public class IndexController {
         arrayString.add("/cust/{username}/id/{id}/mon/start");
         arrayString.add("/cust/{username}/id/{id}/mon/stop");
 
+        arrayString.add("/cust/{username}/id/{id}/regression/start?url=");
+        arrayString.add("/cust/{username}/id/{id}/regression/stop");
+
         arrayString.add("/cust/{username}/id/{id}/serv");
 
         arrayString.add("/cust/{username}/id/{id}/serv/prod?length={0 for all}");
@@ -130,44 +133,42 @@ public class IndexController {
         return ret;
     }
 
-    @RequestMapping(value = "/cust/{username}/id/{id}/mon/updatereport", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public @ResponseBody
-    String getAllmonUpdateRep(
-            @PathVariable("username") String username,
-            @PathVariable("id") String idSt,
-            HttpServletRequest request, HttpServletResponse response
-    ) {
-        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
-        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
-            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-            return "";
-        }
-
-        int ret = afWebService.getSsReportMonUpdateReport(username, idSt);
-
-        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
-        return ret + "";
-    }
-
-    @RequestMapping(value = "/cust/{username}/id/{id}/mon/exec", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public @ResponseBody
-    String getAllmonExec(
-            @PathVariable("username") String username,
-            @PathVariable("id") String idSt,
-            HttpServletRequest request, HttpServletResponse response
-    ) {
-        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
-        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
-            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-            return "";
-        }
-
-        String ret = afWebService.getSsReportMonExec(username, idSt);
-
-        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
-        return ret;
-    }
-
+//    @RequestMapping(value = "/cust/{username}/id/{id}/mon/updatereport", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public @ResponseBody
+//    String getAllmonUpdateRep(
+//            @PathVariable("username") String username,
+//            @PathVariable("id") String idSt,
+//            HttpServletRequest request, HttpServletResponse response
+//    ) {
+//        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+//        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+//            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+//            return "";
+//        }
+//
+//        int ret = afWebService.getSsReportMonUpdateReport(username, idSt);
+//
+//        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
+//        return ret + "";
+//    }
+//    @RequestMapping(value = "/cust/{username}/id/{id}/mon/exec", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public @ResponseBody
+//    String getAllmonExec(
+//            @PathVariable("username") String username,
+//            @PathVariable("id") String idSt,
+//            HttpServletRequest request, HttpServletResponse response
+//    ) {
+//        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+//        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+//            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+//            return "";
+//        }
+//
+//        String ret = afWebService.getSsReportMonExec(username, idSt);
+//
+//        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
+//        return ret;
+//    }
     @RequestMapping(value = "/cust/{username}/id/{id}/mon/clearreport", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     int getAllmonreport(
@@ -203,6 +204,43 @@ public class IndexController {
         ArrayList<ProdSummary> ret = afWebService.getSsReportMonReport(username, idSt, pidSt);
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
+    }
+
+    @RequestMapping(value = "/cust/{username}/id/{id}/regression/start", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public @ResponseBody
+    int getAllregressionStart(
+            @PathVariable("username") String username,
+            @PathVariable("id") String idSt,
+            @RequestParam(value = "url", required = true) String urlSt,
+            HttpServletRequest request, HttpServletResponse response
+    ) {
+        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return 0;
+        }
+
+        if (urlSt.length() == 0) {
+            return 0;
+        }
+
+        return afWebService.getSsReportMonRegressionStart(username, idSt, urlSt);
+    }
+
+    @RequestMapping(value = "/cust/{username}/id/{id}/regression/stop", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public @ResponseBody
+    int getAllregressionStop(
+            @PathVariable("username") String username,
+            @PathVariable("id") String idSt,
+            HttpServletRequest request, HttpServletResponse response
+    ) {
+        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return 0;
+        }
+
+        return afWebService.getSsReportMonRegressionStop(username, idSt);
     }
 
     @RequestMapping(value = "/cust/{username}/id/{id}/mon/start", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -357,7 +395,7 @@ public class IndexController {
             return null;
         }
         String oper = SsnsService.TT_GetSub;
-        ArrayList<String> ret = afWebService.testSsnsprodTTVCByIdRT(username, idSt, pidSt, SsnsService.APP_TTVC, oper);
+        ArrayList<String> ret = afWebService.testSsnsprodTTVCByIdRT(username, idSt, pidSt, SsnsService.APP_TTVC, oper, "");
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
@@ -376,7 +414,7 @@ public class IndexController {
             return null;
         }
         String oper = SsnsService.TT_Vadulate;
-        ArrayList<String> ret = afWebService.testSsnsprodTTVCByIdRT(username, idSt, pidSt, SsnsService.APP_TTVC, oper);
+        ArrayList<String> ret = afWebService.testSsnsprodTTVCByIdRT(username, idSt, pidSt, SsnsService.APP_TTVC, oper, "");
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
@@ -395,7 +433,7 @@ public class IndexController {
             return null;
         }
         String oper = SsnsService.TT_Quote;
-        ArrayList<String> ret = afWebService.testSsnsprodTTVCByIdRT(username, idSt, pidSt, SsnsService.APP_TTVC, oper);
+        ArrayList<String> ret = afWebService.testSsnsprodTTVCByIdRT(username, idSt, pidSt, SsnsService.APP_TTVC, oper, "");
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
@@ -535,7 +573,7 @@ public class IndexController {
             return null;
         }
         String oper = SsnsService.WI_GetDevice;
-        ArrayList<String> ret = afWebService.testSsnsprodWifiByIdRT(username, idSt, pidSt, SsnsService.APP_WIFI, oper);
+        ArrayList<String> ret = afWebService.testSsnsprodWifiByIdRT(username, idSt, pidSt, SsnsService.APP_WIFI, oper, "");
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
@@ -553,8 +591,8 @@ public class IndexController {
             response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             return "";
         }
-
-        String ret = afWebService.testSsnsprodWifiByIdRTTtest(username, idSt, pidSt, SsnsService.APP_PRODUCT, "");
+        String oper = SsnsService.WI_GetDeviceStatus;
+        String ret = afWebService.testSsnsprodWifiByIdRTTtest(username, idSt, pidSt, SsnsService.APP_PRODUCT, oper, "");
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
@@ -573,7 +611,7 @@ public class IndexController {
             return null;
         }
         String oper = SsnsService.WI_GetDeviceStatus;
-        ArrayList<String> ret = afWebService.testSsnsprodWifiByIdRT(username, idSt, pidSt, SsnsService.APP_WIFI, oper);
+        ArrayList<String> ret = afWebService.testSsnsprodWifiByIdRT(username, idSt, pidSt, SsnsService.APP_WIFI, oper, "");
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
@@ -713,7 +751,7 @@ public class IndexController {
             return null;
         }
         String oper = SsnsService.APP_GET_APP;
-        ArrayList<String> ret = afWebService.testSsnsprodAppByIdRT(username, idSt, pidSt, SsnsService.APP_APP, oper);
+        ArrayList<String> ret = afWebService.testSsnsprodAppByIdRT(username, idSt, pidSt, SsnsService.APP_APP, oper, "");
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
@@ -732,7 +770,7 @@ public class IndexController {
             return null;
         }
         String oper = SsnsService.APP_GET_TIMES;
-        ArrayList<String> ret = afWebService.testSsnsprodAppByIdRT(username, idSt, pidSt, SsnsService.APP_APP, oper);
+        ArrayList<String> ret = afWebService.testSsnsprodAppByIdRT(username, idSt, pidSt, SsnsService.APP_APP, oper, "");
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
@@ -874,7 +912,7 @@ public class IndexController {
             return "";
         }
 
-        String ret = afWebService.testSsnsprodByIdRTtest(username, idSt, pidSt, SsnsService.APP_PRODUCT, "");
+        String ret = afWebService.testSsnsprodByIdRTtest(username, idSt, pidSt, SsnsService.APP_PRODUCT, "", "");
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
@@ -893,7 +931,7 @@ public class IndexController {
             return null;
         }
 
-        ArrayList<String> ret = afWebService.testSsnsprodByIdRT(username, idSt, pidSt, SsnsService.APP_PRODUCT, "");
+        ArrayList<String> ret = afWebService.testSsnsprodByIdRT(username, idSt, pidSt, SsnsService.APP_PRODUCT, "", "");
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
@@ -1219,6 +1257,16 @@ public class IndexController {
             }
         }
         return "";
+    }
+
+    @RequestMapping(value = "/server/sendurl", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public @ResponseBody
+    ArrayList<String> setServerSendURL(
+            @RequestParam(value = "url", required = true) String urlSt,
+            HttpServletRequest request, HttpServletResponse response
+    ) {
+
+        return afWebService.ServerSendURL(urlSt);
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
