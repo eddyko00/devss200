@@ -61,7 +61,6 @@ public class IndexController {
         arrayString.add("/cust/{username}/id/{id}/mon/start");
         arrayString.add("/cust/{username}/id/{id}/mon/stop");
         arrayString.add("/cust/{username}/id/{id}/mon/pid/{pid}");
-        arrayString.add("/cust/{username}/id/{id}/mon/report/id/{pid}");
 
         arrayString.add("/cust/{username}/id/{id}/regression/start?url=");
         arrayString.add("/cust/{username}/id/{id}/regression/stop");
@@ -118,9 +117,6 @@ public class IndexController {
         return arrayString;
     }
 ////////////////////// 
-//        arrayString.add("/cust/{username}/id/{id}/regression");
-//        arrayString.add("/cust/{username}/id/{id}/regression/start");
-//        arrayString.add("/cust/{username}/id/{id}/regression/stop");   
 
     @RequestMapping(value = "/cust/{username}/id/{id}/regression", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
@@ -139,25 +135,26 @@ public class IndexController {
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
-    @RequestMapping(value = "/cust/{username}/id/{id}/regression/report/id/{pid}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public @ResponseBody
-    ArrayList<ProdSummary> getAllregresreport(
-            @PathVariable("username") String username,
-            @PathVariable("id") String idSt,
-            @PathVariable("pid") String pidSt,
-            HttpServletRequest request, HttpServletResponse response
-    ) {
-        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
-        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
-            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-            return null;
-        }
 
-        ArrayList<ProdSummary> ret = afWebService.getSsReportRegressionReport(username, idSt, pidSt);
-        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
-        return ret;
-    }
-
+//    @RequestMapping(value = "/cust/{username}/id/{id}/regression/report/id/{pid}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public @ResponseBody
+//    ArrayList<ProdSummary> getAllregresreport(
+//            @PathVariable("username") String username,
+//            @PathVariable("id") String idSt,
+//            @PathVariable("pid") String pidSt,
+//            HttpServletRequest request, HttpServletResponse response
+//    ) {
+//        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+//        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+//            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+//            return null;
+//        }
+//
+//        ArrayList<ProdSummary> ret = afWebService.getSsReportRegressionReport(username, idSt, pidSt);
+//        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
+//        return ret;
+//    }
+    
     @RequestMapping(value = "/cust/{username}/id/{id}/regression/start", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     int getAllregressionStart(
@@ -216,42 +213,24 @@ public class IndexController {
         return ret;
     }
 
-    @RequestMapping(value = "/cust/{username}/id/{id}/mon/clearreport", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public @ResponseBody
-    int getAllmonreport(
-            @PathVariable("username") String username,
-            @PathVariable("id") String idSt,
-            HttpServletRequest request, HttpServletResponse response
-    ) {
-        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
-        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
-            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-            return 0;
-        }
-
-        int ret = afWebService.SsReportClearExceptLast2(username, idSt);
-        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
-        return ret;
-    }
-
-    @RequestMapping(value = "/cust/{username}/id/{id}/mon/report/id/{pid}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public @ResponseBody
-    ArrayList<ProdSummary> getAllmonreport(
-            @PathVariable("username") String username,
-            @PathVariable("id") String idSt,
-            @PathVariable("pid") String pidSt,
-            HttpServletRequest request, HttpServletResponse response
-    ) {
-        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
-        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
-            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-            return null;
-        }
-
-        ArrayList<ProdSummary> ret = afWebService.getSsReportMonReport(username, idSt, pidSt);
-        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
-        return ret;
-    }
+//    @RequestMapping(value = "/cust/{username}/id/{id}/mon/report/id/{pid}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public @ResponseBody
+//    ArrayList<ProdSummary> getAllmonreport(
+//            @PathVariable("username") String username,
+//            @PathVariable("id") String idSt,
+//            @PathVariable("pid") String pidSt,
+//            HttpServletRequest request, HttpServletResponse response
+//    ) {
+//        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+//        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+//            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+//            return null;
+//        }
+//
+//        ArrayList<ProdSummary> ret = afWebService.getSsReportMonReport(username, idSt, pidSt);
+//        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
+//        return ret;
+//    }
 
     @RequestMapping(value = "/cust/{username}/id/{id}/mon/execmonitor", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
@@ -1197,6 +1176,23 @@ public class IndexController {
             }
         }
         return null;
+    }
+
+    @RequestMapping(value = "/cust/{username}/sys/clearallreport", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public @ResponseBody
+    int getAllmonreport(
+            @PathVariable("username") String username,
+            HttpServletRequest request, HttpServletResponse response
+    ) {
+        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return 0;
+        }
+
+        int ret = afWebService.SsReportClearAll(username);
+        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
+        return ret;
     }
 
     @RequestMapping(value = "/cust/{username}/sys/request", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})

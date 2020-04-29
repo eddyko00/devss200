@@ -366,8 +366,6 @@ public class ServiceAFweb {
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////  
                     logger.info("> Debug end ");
                 }
@@ -417,7 +415,7 @@ public class ServiceAFweb {
             }
             if ((getServerObj().getProcessTimerCnt() % 13) == 0) {
                 ;
-   
+
             } else if ((getServerObj().getProcessTimerCnt() % 11) == 0) {
                 ;
 
@@ -428,10 +426,9 @@ public class ServiceAFweb {
 
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
                 ;
-
+      
             } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
                 //10 Sec * 5 ~ 1 minutes
-  
 
             } else if ((getServerObj().getProcessTimerCnt() % 2) == 0) {
 
@@ -521,7 +518,6 @@ public class ServiceAFweb {
 //            output.add("  ");
         }
     }
-
 
 
     public static String replaceAll(String oldStr, String newStr, String inString) {
@@ -951,7 +947,7 @@ public class ServiceAFweb {
             }
             ret = regression.startMonitorRegression(this, name, app, urlSt);
             // clear old report
-            SsReportClearExceptLast2(name, IDSt);
+            SsReportClearExceptLast2(name);
 
         } catch (Exception ex) {
         }
@@ -1033,7 +1029,7 @@ public class ServiceAFweb {
             }
             ret = regression.startMonitor(this, name);
             // clear old report
-            SsReportClearExceptLast2(name, IDSt);
+            SsReportClearExceptLast2(name);
 
         } catch (Exception ex) {
         }
@@ -1041,7 +1037,7 @@ public class ServiceAFweb {
         return ret;
     }
 
-    public int SsReportClearExceptLast2(String EmailUserName, String IDSt) {
+    public int SsReportClearAll(String EmailUserName) {
 
         if (getServerObj().isSysMaintenance() == true) {
             return 0;
@@ -1050,12 +1046,16 @@ public class ServiceAFweb {
         if (custObj == null) {
             return 0;
         }
-        if (IDSt != null) {
-            if (IDSt.equals(custObj.getId() + "") != true) {
-                return 0;
-            }
+        if (custObj.getType() != CustomerObj.INT_ADMIN_USER) {
+            return 10;
         }
-        String name = CKey.ADMIN_USERNAME;
+        this.getSsnsDataImp().deleteAllSsReport(0);
+        return 1;
+
+    }
+
+    public int SsReportClearExceptLast2(String name) {
+
         ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_REPORT);
         if (ssReportObjList != null) {
             for (int i = 0; i < ssReportObjList.size(); i++) {
@@ -1075,41 +1075,41 @@ public class ServiceAFweb {
 
     }
 
-    public ArrayList<ProdSummary> getSsReportRegressionReport(String EmailUserName, String IDSt, String repIDSt) {
-
-        if (getServerObj().isSysMaintenance() == true) {
-            return null;
-        }
-        CustomerObj custObj = getAccountImp().getCustomerPassword(EmailUserName, null);
-        if (custObj == null) {
-            return null;
-        }
-        if (IDSt != null) {
-            if (IDSt.equals(custObj.getId() + "") != true) {
-                return null;
-            }
-        }
-        String name = EmailUserName;
-        ArrayList<ProdSummary> ssTestcaseSumObjList = new ArrayList();
-
-        ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_REPORT);
-        if (ssReportObjList != null) {
-            if (ssReportObjList.size() > 0) {
-                SsReport reportObj = ssReportObjList.get(0);
-                String nameRepId = reportObj.getName() + "_" + reportObj.getId();
-                ArrayList<SsReport> ssTestcaseObjList = getSsnsDataImp().getSsReportObjListByUidDesc(nameRepId, SsnsRegression.REPORT_TESE_CASE);
-                ssTestcaseSumObjList = getProdSummaryFromReportList(ssTestcaseObjList);
-
-//                ArrayList<ProdSummary> ssTestcaseObjList = getSsnsDataImp().getSsReportSummaryObjListByUid(nameRepId, SsnsRegression.REPORT_TESE_CASE);
-//                if (ssTestcaseObjList != null) {
-//                    ssReportList.addAll(ssTestcaseObjList);
-//                }
-            }
-        }
-
-        return ssTestcaseSumObjList;
-
-    }
+//    public ArrayList<ProdSummary> getSsReportRegressionReport(String EmailUserName, String IDSt, String repIDSt) {
+//
+//        if (getServerObj().isSysMaintenance() == true) {
+//            return null;
+//        }
+//        CustomerObj custObj = getAccountImp().getCustomerPassword(EmailUserName, null);
+//        if (custObj == null) {
+//            return null;
+//        }
+//        if (IDSt != null) {
+//            if (IDSt.equals(custObj.getId() + "") != true) {
+//                return null;
+//            }
+//        }
+//        String name = EmailUserName;
+//        ArrayList<ProdSummary> ssTestcaseSumObjList = new ArrayList();
+//
+//        ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_REPORT);
+//        if (ssReportObjList != null) {
+//            if (ssReportObjList.size() > 0) {
+//                SsReport reportObj = ssReportObjList.get(0);
+//                String nameRepId = reportObj.getName() + "_" + reportObj.getId();
+//                ArrayList<SsReport> ssTestcaseObjList = getSsnsDataImp().getSsReportObjListByUidDesc(nameRepId, SsnsRegression.REPORT_TESE_CASE);
+//                ssTestcaseSumObjList = getProdSummaryFromReportList(ssTestcaseObjList);
+//
+////                ArrayList<ProdSummary> ssTestcaseObjList = getSsnsDataImp().getSsReportSummaryObjListByUid(nameRepId, SsnsRegression.REPORT_TESE_CASE);
+////                if (ssTestcaseObjList != null) {
+////                    ssReportList.addAll(ssTestcaseObjList);
+////                }
+//            }
+//        }
+//
+//        return ssTestcaseSumObjList;
+//
+//    }
 
     public ArrayList<ProdSummary> getSsReportMonReport(String EmailUserName, String IDSt, String repIDSt) {
 
@@ -1195,13 +1195,12 @@ public class ServiceAFweb {
         if (ssUserReportObjList == null) {
             return ssReportList;
         }
-        ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_REPORT);
-        if (ssUserReportObjList != null) {
-            ssReportList.addAll(ssUserReportObjList);
-        }
-        if (ssReportObjList != null) {
-            ssReportList.addAll(ssReportObjList);
-        }
+        ssReportList.addAll(ssUserReportObjList);
+        
+        ArrayList<SsReport> ssResultReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_RESULT);
+        if (ssResultReportObjList != null) {
+            ssReportList.addAll(ssResultReportObjList);
+        }  
         return ssReportList;
 
     }
@@ -1226,13 +1225,12 @@ public class ServiceAFweb {
         if (ssUserReportObjList == null) {
             return ssReportList;
         }
-        ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_REPORT);
-        if (ssUserReportObjList != null) {
-            ssReportList.addAll(ssUserReportObjList);
-        }
-        if (ssReportObjList != null) {
-            ssReportList.addAll(ssReportObjList);
-        }
+        ssReportList.addAll(ssUserReportObjList);
+        
+        ArrayList<SsReport> ssResultReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_RESULT);
+        if (ssResultReportObjList != null) {
+            ssReportList.addAll(ssResultReportObjList);
+        }        
         return ssReportList;
 
     }

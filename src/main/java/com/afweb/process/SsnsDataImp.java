@@ -185,9 +185,9 @@ public class SsnsDataImp {
         return ssnsdb.getSsnsAccObjListByID(app, pid);
     }
 
-    public ArrayList<ProdSummary> getSsnsAccObjSummaryListByApp(String app, int length) {
-        return ssnsdb.getSsnsAccObjSummaryListByApp(app, length);
-    }
+//    public ArrayList<ProdSummary> getSsnsAccObjSummaryListByApp(String app, int length) {
+//        return ssnsdb.getSsnsAccObjSummaryListByApp(app, length);
+//    }
 
     public ArrayList<SsnsAcc> getSsnsAccObjListByApp(String app, int length) {
         return ssnsdb.getSsnsAccObjListByApp(app, length);
@@ -232,9 +232,9 @@ public class SsnsDataImp {
         return ssnsdb.DeleteSsReportObjListByUid(name, uid);
     }
 
-    public ArrayList<ProdSummary> getSsReportSummaryObjListByUid(String name, String uid) {
-        return ssnsdb.getSsReportSummaryObjListByUid(name, uid);
-    }
+//    public ArrayList<ProdSummary> getSsReportSummaryObjListByUid(String name, String uid) {
+//        return ssnsdb.getSsReportSummaryObjListByUid(name, uid);
+//    }
 
     public ArrayList<SsReport> getSsReportObjListByUidDesc(String name, String uid) {
         return ssnsdb.getSsReportObjListByUidDesc(name, uid);

@@ -1046,59 +1046,59 @@ public class SsnsDataDB {
 
     }
 
-    public ArrayList<ProdSummary> getSsReportSummaryObjListByUid(String name, String uid) {
-        String sql = "select id as parm1, cusid as parm2, banid as parm3, tiid as parm4,"
-                + " oper as parm5, exec as parm6, ret as parm7  from ssreport "
-                + " where name='" + name + "' and uid='" + uid + "'";
-        sql += " order by updatedatel asc";
-        ArrayList<Pram7RDB> entries = getAll7ParamSQL(sql);
-        ArrayList<ProdSummary> sumList = new ArrayList();
-        if (entries != null) {
-            if (entries.size() > 0) {
+//    public ArrayList<ProdSummary> getSsReportSummaryObjListByUid(String name, String uid) {
+//        String sql = "select id as parm1, cusid as parm2, banid as parm3, tiid as parm4,"
+//                + " oper as parm5, exec as parm6, ret as parm7  from ssreport "
+//                + " where name='" + name + "' and uid='" + uid + "'";
+//        sql += " order by updatedatel asc";
+//        ArrayList<Pram7RDB> entries = getAll7ParamSQL(sql);
+//        ArrayList<ProdSummary> sumList = new ArrayList();
+//        if (entries != null) {
+//            if (entries.size() > 0) {
+//
+//                for (int i = 0; i < entries.size(); i++) {
+//                    Pram7RDB parm = entries.get(i);
+//                    ProdSummary sum = new ProdSummary();
+//                    sum.setId(Integer.parseInt(parm.getParm1()));
+//                    sum.setCusid(parm.getParm2());
+//                    sum.setBanid(parm.getParm3());
+//                    sum.setTiid(parm.getParm4());
+//                    sum.setOper(parm.getParm5());
+//                    sum.setDown(parm.getParm6());
+//                    sum.setRet(parm.getParm7());
+//                    sumList.add(sum);
+//                }
+//            }
+//            return sumList;
+//        }
+//        return null;
+//    }
 
-                for (int i = 0; i < entries.size(); i++) {
-                    Pram7RDB parm = entries.get(i);
-                    ProdSummary sum = new ProdSummary();
-                    sum.setId(Integer.parseInt(parm.getParm1()));
-                    sum.setCusid(parm.getParm2());
-                    sum.setBanid(parm.getParm3());
-                    sum.setTiid(parm.getParm4());
-                    sum.setOper(parm.getParm5());
-                    sum.setDown(parm.getParm6());
-                    sum.setRet(parm.getParm7());
-                    sumList.add(sum);
-                }
-            }
-            return sumList;
-        }
-        return null;
-    }
-
-    public ArrayList<ProdSummary> getSsnsAccObjSummaryListByApp(String app, int length) {
-        String sql = "select id as parm1, cusid as parm2, banid as parm3, tiid as parm4,"
-                + " oper as parm5, down as parm6, ret as parm7  from ssnsacc "
-                + "where app='" + app + "'";
-        ArrayList<Pram7RDB> entries = getAll7ParamSQL(sql);
-        if (entries != null) {
-            if (entries.size() > 0) {
-                ArrayList<ProdSummary> sumList = new ArrayList();
-                for (int i = 0; i < entries.size(); i++) {
-                    Pram7RDB parm = entries.get(i);
-                    ProdSummary sum = new ProdSummary();
-                    sum.setId(Integer.parseInt(parm.getParm1()));
-                    sum.setCusid(parm.getParm2());
-                    sum.setBanid(parm.getParm3());
-                    sum.setTiid(parm.getParm4());
-                    sum.setOper(parm.getParm5());
-                    sum.setDown(parm.getParm6());
-                    sum.setRet(parm.getParm7());
-                    sumList.add(sum);
-                }
-                return sumList;
-            }
-        }
-        return null;
-    }
+//    public ArrayList<ProdSummary> getSsnsAccObjSummaryListByApp(String app, int length) {
+//        String sql = "select id as parm1, cusid as parm2, banid as parm3, tiid as parm4,"
+//                + " oper as parm5, down as parm6, ret as parm7  from ssnsacc "
+//                + "where app='" + app + "'";
+//        ArrayList<Pram7RDB> entries = getAll7ParamSQL(sql);
+//        if (entries != null) {
+//            if (entries.size() > 0) {
+//                ArrayList<ProdSummary> sumList = new ArrayList();
+//                for (int i = 0; i < entries.size(); i++) {
+//                    Pram7RDB parm = entries.get(i);
+//                    ProdSummary sum = new ProdSummary();
+//                    sum.setId(Integer.parseInt(parm.getParm1()));
+//                    sum.setCusid(parm.getParm2());
+//                    sum.setBanid(parm.getParm3());
+//                    sum.setTiid(parm.getParm4());
+//                    sum.setOper(parm.getParm5());
+//                    sum.setDown(parm.getParm6());
+//                    sum.setRet(parm.getParm7());
+//                    sumList.add(sum);
+//                }
+//                return sumList;
+//            }
+//        }
+//        return null;
+//    }
 
     public ArrayList<SsnsAcc> getSsnsAccObjListByApp(String app, int length) {
         String sql = "select * from ssnsacc where app='" + app + "'";
