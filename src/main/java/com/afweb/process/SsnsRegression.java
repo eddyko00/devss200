@@ -383,7 +383,7 @@ public class SsnsRegression {
                             reportReportObj.getStatus(), reportReportObj.getType());
 
                     // update report statistic
-//                    reportUpdateStatistic(serviceAFweb, name);
+                    reportUpdateStatistic(serviceAFweb, name);
                 }
                 serviceAFweb.removeNameLock(LockName, ConstantKey.MON_LOCKTYPE);
             }

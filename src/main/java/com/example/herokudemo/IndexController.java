@@ -139,6 +139,24 @@ public class IndexController {
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
+    @RequestMapping(value = "/cust/{username}/id/{id}/regression/report/id/{pid}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public @ResponseBody
+    ArrayList<ProdSummary> getAllregresreport(
+            @PathVariable("username") String username,
+            @PathVariable("id") String idSt,
+            @PathVariable("pid") String pidSt,
+            HttpServletRequest request, HttpServletResponse response
+    ) {
+        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return null;
+        }
+
+        ArrayList<ProdSummary> ret = afWebService.getSsReportRegressionReport(username, idSt, pidSt);
+        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
+        return ret;
+    }
 
     @RequestMapping(value = "/cust/{username}/id/{id}/regression/start", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
@@ -211,7 +229,7 @@ public class IndexController {
             return 0;
         }
 
-        int ret = afWebService.getSsReportClearAll(username, idSt);
+        int ret = afWebService.SsReportClearExceptLast2(username, idSt);
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
@@ -233,6 +251,22 @@ public class IndexController {
         ArrayList<ProdSummary> ret = afWebService.getSsReportMonReport(username, idSt, pidSt);
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
+    }
+
+    @RequestMapping(value = "/cust/{username}/id/{id}/mon/execmonitor", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public @ResponseBody
+    int getAllmonExec(
+            @PathVariable("username") String username,
+            @PathVariable("id") String idSt,
+            HttpServletRequest request, HttpServletResponse response
+    ) {
+        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return 0;
+        }
+        afWebService.getSsReportExectMon(username, idSt);
+        return 1;
     }
 
     @RequestMapping(value = "/cust/{username}/id/{id}/mon/updatestatistic", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -281,6 +315,23 @@ public class IndexController {
         }
 
         return afWebService.getSsReportMonStop(username, idSt);
+    }
+
+    @RequestMapping(value = "/cust/{username}/id/{id}/mon/pid", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public @ResponseBody
+    ArrayList<SsReport> getmonpidAll(
+            @PathVariable("username") String username,
+            @PathVariable("id") String idSt,
+            HttpServletRequest request, HttpServletResponse response
+    ) {
+        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return null;
+        }
+        ArrayList<SsReport> ret = afWebService.getSsReportAll(username, idSt);
+        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
+        return ret;
     }
 
     @RequestMapping(value = "/cust/{username}/id/{id}/mon/pid/{pid}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})

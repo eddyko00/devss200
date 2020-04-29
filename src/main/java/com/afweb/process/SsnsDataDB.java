@@ -1198,6 +1198,12 @@ public class SsnsDataDB {
         return entries;
     }
 
+    public ArrayList<SsReport> getSsReportObjList(int length) {
+        String sql = "select * from ssreport order by updatedatel asc";
+        ArrayList entries = getAllSsReportSQL(sql, length);
+        return entries;
+    }
+
     public ArrayList<SsReport> getSsReportObjListByID(int id) {
         String sql = "select * from ssreport where id=" + id
                 + " order by updatedatel asc";
