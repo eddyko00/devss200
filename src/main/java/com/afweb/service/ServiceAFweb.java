@@ -365,7 +365,9 @@ public class ServiceAFweb {
 //
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////  
                     logger.info("> Debug end ");
                 }
@@ -423,13 +425,12 @@ public class ServiceAFweb {
                 //////require to save memory
                 System.gc();
                 //////require to save memory
-                
-  
+
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
 
 
-            } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
 
+            } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
 
             } else if ((getServerObj().getProcessTimerCnt() % 2) == 0) {
 
@@ -1832,7 +1833,6 @@ public class ServiceAFweb {
                 return null;
             }
         }
-        LABURL = "DEVOP";
         ArrayList<SsnsAcc> ssnsAccObjList = getSsnsDataImp().getSsnsAccObjListByID(prod, PIDSt);
         if (ssnsAccObjList != null) {
             if (ssnsAccObjList.size() > 0) {

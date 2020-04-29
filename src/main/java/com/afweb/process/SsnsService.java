@@ -1436,10 +1436,10 @@ public class SsnsService {
 
             boolean stat = this.updateSsnsAppointment(oper, appTId, banid, cust, host, pData, dataObj, NAccObj);
             if (stat == true) {
-                if (devOPflag == 1) {
-                    String feat = NAccObj.getName() + ":TicktoCust";
-                    NAccObj.setName(feat);
-                }
+//                if (devOPflag == 1) {
+//                    String feat = NAccObj.getName() + ":TicktoCust";
+//                    NAccObj.setName(feat);
+//                }
 
                 ArrayList<SsnsAcc> ssnsAccObjList = getSsnsDataImp().getSsnsAccObjList(NAccObj.getName(), NAccObj.getUid());
                 boolean exist = false;

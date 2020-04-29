@@ -106,12 +106,14 @@ public class SsnsRegression {
                     }
                 }
             }
-            int exitTest = 500;  // 1000000;
+            int exitTest = 800;  // 1000000;
+
             int added = 0;
             ReportData reportdata = new ReportData();
             ArrayList<String> servList = serviceAFweb.getSsnsprodAll(name, null, 0);
             for (int i = 0; i < servList.size(); i += 2) {
                 String servProd = servList.get(i);
+                int exitSrv = 200;
                 if (app != null) {
                     if (app.length() > 0) {
                         if (app.equals(servProd)) {
@@ -149,6 +151,10 @@ public class SsnsRegression {
                             if (added > exitTest) {
                                 break;
                             }
+                            if (added > exitSrv){  // 100 each product
+                                break;
+                            }
+                                
 ////////////////////////////////////////////////
                         }
                     }
@@ -531,11 +537,17 @@ public class SsnsRegression {
                     for (int j = 0; j < cmdList.size(); j += 2) {
                         String oper = cmdList.get(j + 1);
                         String passSt = "";
+                        if (oper.equals(SsnsService.PROD_GET_PROD)) {
+                            //ignore this becase too large response
+                            //ignore this becase too large response
+                            continue;
+                        }
                         long exec = 0;
                         ArrayList<String> response = new ArrayList();
                         ArrayList<String> labResponse = new ArrayList();
                         if (LABURL.length() == 0) {
                             passSt = R_FAIL;
+                            
                             response = serviceAFweb.testSsnsprodPRocessByIdRT(CKey.ADMIN_USERNAME, null, accObj.getId() + "", accObj.getApp(), oper, LABURL);
                             if (response != null) {
                                 if (response.size() > 3) {
@@ -595,7 +607,7 @@ public class SsnsRegression {
                             }
                             passSt = accObj.getName() + ":" + passSt;
                         }
-                       
+
                         SsReport reportObj = new SsReport();
                         String nameRepId = reportReportObj.getName() + "_" + reportReportObj.getId();
                         reportObj.setName(nameRepId);
