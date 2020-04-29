@@ -595,6 +595,7 @@ public class SsnsRegression {
                             }
                             passSt = accObj.getName() + ":" + passSt;
                         }
+                       
                         SsReport reportObj = new SsReport();
                         String nameRepId = reportReportObj.getName() + "_" + reportReportObj.getId();
                         reportObj.setName(nameRepId);

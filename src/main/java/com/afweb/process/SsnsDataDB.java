@@ -183,7 +183,7 @@ public class SsnsDataDB {
     public boolean restSsnsDataDB() {
         boolean status = true;
         try {
-            processExecuteDB("drop table if exists dummy1");
+            processExecuteDB("drop table if exists ssnsdummy");
         } catch (Exception e) {
             logger.info("> restSsnsDataDB Table exception " + e.getMessage());
             status = false;

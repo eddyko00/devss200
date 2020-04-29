@@ -365,7 +365,7 @@ public class ServiceAFweb {
 //
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////  
                     logger.info("> Debug end ");
                 }
@@ -410,25 +410,26 @@ public class ServiceAFweb {
             if ((getServerObj().getProcessTimerCnt() % 280) == 0) {
                 // 30 sec per tick ~ 5 hour   60 s*60 * 4/ 30 
             }
-            if ((getServerObj().getProcessTimerCnt() % 200) == 0) {
-                // 30 sec per tick ~  for 3 hour   60 s*60 *3 /30 
+            if ((getServerObj().getProcessTimerCnt() % 20) == 0) {
+                ProcessAllLockCleanup();
             }
             if ((getServerObj().getProcessTimerCnt() % 13) == 0) {
-                ;
 
+                
             } else if ((getServerObj().getProcessTimerCnt() % 11) == 0) {
-                ;
 
+                
             } else if ((getServerObj().getProcessTimerCnt() % 7) == 0) {
                 //////require to save memory
                 System.gc();
                 //////require to save memory
-
+                
+  
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
-                ;
-      
+
+
             } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
-                //10 Sec * 5 ~ 1 minutes
+
 
             } else if ((getServerObj().getProcessTimerCnt() % 2) == 0) {
 
@@ -440,6 +441,31 @@ public class ServiceAFweb {
             logger.info("> processTimer Exception" + ex.getMessage());
         }
     }
+
+    
+        private void ProcessAllLockCleanup() {
+        // clean up old lock name
+        // clean Lock entry pass 30 min
+        ArrayList<AFLockObject> lockArray = getAllLock();
+        Calendar dateNow = TimeConvertion.getCurrentCalendar();
+        int numCnt = 0;
+        if (lockArray != null) {
+            for (int i = 0; i < lockArray.size(); i++) {
+                AFLockObject lockObj = lockArray.get(i);
+                long lastUpdate = lockObj.getLockdatel();
+                long lastUpdateAdd30 = TimeConvertion.addMinutes(lastUpdate, 30); // remove lock for 30min
+
+                if (lastUpdateAdd30 < dateNow.getTimeInMillis()) {
+                    removeNameLock(lockObj.getLockname(), lockObj.getType());
+                    numCnt++;
+                    if (numCnt > 10) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
 
     /**
      * A simple implementation to pretty-print JSON file.
@@ -518,6 +544,7 @@ public class ServiceAFweb {
 //            output.add("  ");
         }
     }
+////////////////////////////////
 
 
     public static String replaceAll(String oldStr, String newStr, String inString) {
@@ -1110,7 +1137,6 @@ public class ServiceAFweb {
 //        return ssTestcaseSumObjList;
 //
 //    }
-
     public ArrayList<ProdSummary> getSsReportMonReport(String EmailUserName, String IDSt, String repIDSt) {
 
         if (getServerObj().isSysMaintenance() == true) {
@@ -1196,11 +1222,11 @@ public class ServiceAFweb {
             return ssReportList;
         }
         ssReportList.addAll(ssUserReportObjList);
-        
+
         ArrayList<SsReport> ssResultReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_RESULT);
         if (ssResultReportObjList != null) {
             ssReportList.addAll(ssResultReportObjList);
-        }  
+        }
         return ssReportList;
 
     }
@@ -1226,11 +1252,11 @@ public class ServiceAFweb {
             return ssReportList;
         }
         ssReportList.addAll(ssUserReportObjList);
-        
+
         ArrayList<SsReport> ssResultReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_RESULT);
         if (ssResultReportObjList != null) {
             ssReportList.addAll(ssResultReportObjList);
-        }        
+        }
         return ssReportList;
 
     }
@@ -1806,6 +1832,7 @@ public class ServiceAFweb {
                 return null;
             }
         }
+        LABURL = "DEVOP";
         ArrayList<SsnsAcc> ssnsAccObjList = getSsnsDataImp().getSsnsAccObjListByID(prod, PIDSt);
         if (ssnsAccObjList != null) {
             if (ssnsAccObjList.size() > 0) {
