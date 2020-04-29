@@ -429,11 +429,6 @@ public class ServiceAFweb {
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
                 ;
 
-
-                //// process monitor
-                SsnsRegression regression = new SsnsRegression();
-                regression.processMonitorTesting(this);
-
             } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
                 //10 Sec * 5 ~ 1 minutes
   
