@@ -366,7 +366,6 @@ public class ServiceAFweb {
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////  
                     logger.info("> Debug end ");
                 }
@@ -415,23 +414,23 @@ public class ServiceAFweb {
                 ProcessAllLockCleanup();
             }
             if ((getServerObj().getProcessTimerCnt() % 13) == 0) {
-  
-                
+
+
             } else if ((getServerObj().getProcessTimerCnt() % 11) == 0) {
 
-                
+
             } else if ((getServerObj().getProcessTimerCnt() % 7) == 0) {
                 //////require to save memory
                 System.gc();
                 //////require to save memory
-                
+
 
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
 
 
+
             } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
                 //10 Sec * 5 ~ 1 minutes
-
 
             } else if ((getServerObj().getProcessTimerCnt() % 2) == 0) {
 
@@ -444,8 +443,7 @@ public class ServiceAFweb {
         }
     }
 
-    
-        private void ProcessAllLockCleanup() {
+    private void ProcessAllLockCleanup() {
         // clean up old lock name
         // clean Lock entry pass 30 min
         ArrayList<AFLockObject> lockArray = getAllLock();
@@ -467,7 +465,6 @@ public class ServiceAFweb {
             }
         }
     }
-
 
     /**
      * A simple implementation to pretty-print JSON file.
@@ -547,7 +544,6 @@ public class ServiceAFweb {
         }
     }
 ////////////////////////////////
-
 
     public static String replaceAll(String oldStr, String newStr, String inString) {
         while (true) {
@@ -1095,85 +1091,23 @@ public class ServiceAFweb {
                 String nameRepId = repObj.getName() + "_" + repObj.getId();
                 getSsnsDataImp().DeleteSsReportObjListByUid(nameRepId, SsnsRegression.REPORT_TESE_CASE);
 
-                getSsnsDataImp().DeleteSsReportObjByID(repObj.getId());
+                getSsnsDataImp().DeleteSsReportObjByID(repObj.getId());  // delete report
+            }
 
+            ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_RESULT);
+            if (ssReportObjList != null) {
+                for (int i = 0; i < ssReportObjList.size(); i++) {
+                    if (i < 2) {
+                        continue;
+                    }
+                    SsReport repObj = ssReportObjList.get(i);
+                    getSsnsDataImp().DeleteSsReportObjByID(repObj.getId());  // delete result
+                }
             }
         }
-
         return 1;
-
     }
-
-//    public ArrayList<ProdSummary> getSsReportRegressionReport(String EmailUserName, String IDSt, String repIDSt) {
-//
-//        if (getServerObj().isSysMaintenance() == true) {
-//            return null;
-//        }
-//        CustomerObj custObj = getAccountImp().getCustomerPassword(EmailUserName, null);
-//        if (custObj == null) {
-//            return null;
-//        }
-//        if (IDSt != null) {
-//            if (IDSt.equals(custObj.getId() + "") != true) {
-//                return null;
-//            }
-//        }
-//        String name = EmailUserName;
-//        ArrayList<ProdSummary> ssTestcaseSumObjList = new ArrayList();
-//
-//        ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_REPORT);
-//        if (ssReportObjList != null) {
-//            if (ssReportObjList.size() > 0) {
-//                SsReport reportObj = ssReportObjList.get(0);
-//                String nameRepId = reportObj.getName() + "_" + reportObj.getId();
-//                ArrayList<SsReport> ssTestcaseObjList = getSsnsDataImp().getSsReportObjListByUidDesc(nameRepId, SsnsRegression.REPORT_TESE_CASE);
-//                ssTestcaseSumObjList = getProdSummaryFromReportList(ssTestcaseObjList);
-//
-////                ArrayList<ProdSummary> ssTestcaseObjList = getSsnsDataImp().getSsReportSummaryObjListByUid(nameRepId, SsnsRegression.REPORT_TESE_CASE);
-////                if (ssTestcaseObjList != null) {
-////                    ssReportList.addAll(ssTestcaseObjList);
-////                }
-//            }
-//        }
-//
-//        return ssTestcaseSumObjList;
-//
-//    }
-    public ArrayList<ProdSummary> getSsReportMonReport(String EmailUserName, String IDSt, String repIDSt) {
-
-        if (getServerObj().isSysMaintenance() == true) {
-            return null;
-        }
-        CustomerObj custObj = getAccountImp().getCustomerPassword(EmailUserName, null);
-        if (custObj == null) {
-            return null;
-        }
-        if (IDSt != null) {
-            if (IDSt.equals(custObj.getId() + "") != true) {
-                return null;
-            }
-        }
-        String name = CKey.ADMIN_USERNAME;
-        ArrayList<ProdSummary> ssTestcaseSumObjList = new ArrayList();
-
-        ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_REPORT);
-        if (ssReportObjList != null) {
-            if (ssReportObjList.size() > 0) {
-                SsReport reportObj = ssReportObjList.get(0);
-                String nameRepId = reportObj.getName() + "_" + reportObj.getId();
-                ArrayList<SsReport> ssTestcaseObjList = getSsnsDataImp().getSsReportObjListByUidDesc(nameRepId, SsnsRegression.REPORT_TESE_CASE);
-                ssTestcaseSumObjList = getProdSummaryFromReportList(ssTestcaseObjList);
-//                ArrayList<ProdSummary> ssTestcaseObjList = getSsnsDataImp().getSsReportSummaryObjListByUid(nameRepId, SsnsRegression.REPORT_TESE_CASE);
-//                if (ssTestcaseObjList != null) {
-//                    ssReportList.addAll(ssTestcaseObjList);
-//                }
-            }
-        }
-
-        return ssTestcaseSumObjList;
-
-    }
-
+    
     public String getSsReportMonExec(String EmailUserName, String IDSt) {
 
         if (getServerObj().isSysMaintenance() == true) {

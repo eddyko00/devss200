@@ -145,8 +145,12 @@ public class SsnsRegression {
                             if (accObj.getType() > 10) {  // testfailed will increment this type
                                 continue;
                             }
-                            if (!set.add(accObj.getBanid())) {
-                                continue;
+                            if (accObj.getApp().equals(SsnsService.APP_PRODUCT)) {
+                                if (accObj.getBanid().length() > 0) {
+                                    if (!set.add(accObj.getBanid())) {
+                                        continue;
+                                    }
+                                }
                             }
                             testData tObj = new testData();
                             tObj.setAccid(accObj.getId());
@@ -259,16 +263,17 @@ public class SsnsRegression {
             }
 
             SsReport resultReportObj = null;
-            ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, REPORT_RESULT);
-            if (ssReportObjList != null) {
-                if (ssReportObjList.size() > 0) {
-                    resultReportObj = ssReportObjList.get(0);
-                }
-            }
+//            ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, REPORT_RESULT);
+//            if (ssReportObjList != null) {
+//                if (ssReportObjList.size() > 0) {
+//                    resultReportObj = ssReportObjList.get(0);
+//                }
+//            }
             //update userReportObj to start
             reportdata = new ReportData();
 
             if (resultReportObj == null) {
+                //////always new 
                 resultReportObj = new SsReport();
                 resultReportObj.setName(name);
                 resultReportObj.setStatus(ConstantKey.INITIAL);
@@ -286,16 +291,16 @@ public class SsnsRegression {
                 ret = getSsnsDataImp().insertSsReportObject(resultReportObj);
 
             } else {
-                resultReportObj.setStatus(ConstantKey.INITIAL);
-                resultReportObj.setType(ConstantKey.OPEN);
-                resultReportObj.setUpdatedatel(ctime);
-
-                dataSt = new ObjectMapper().writeValueAsString(reportdata);
-                resultReportObj.setData(dataSt);
-
-                resultReportObj.setUpdatedatedisplay(new java.sql.Date(ctime));
-                ret = getSsnsDataImp().updatSsReportDataStatusTypeById(resultReportObj.getId(), resultReportObj.getData(),
-                        resultReportObj.getStatus(), resultReportObj.getType());
+//                resultReportObj.setStatus(ConstantKey.INITIAL);
+//                resultReportObj.setType(ConstantKey.OPEN);
+//                resultReportObj.setUpdatedatel(ctime);
+//
+//                dataSt = new ObjectMapper().writeValueAsString(reportdata);
+//                resultReportObj.setData(dataSt);
+//
+//                resultReportObj.setUpdatedatedisplay(new java.sql.Date(ctime));
+//                ret = getSsnsDataImp().updatSsReportDataStatusTypeById(resultReportObj.getId(), resultReportObj.getData(),
+//                        resultReportObj.getStatus(), resultReportObj.getType());
             }
 
             return 1;

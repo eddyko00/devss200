@@ -9,7 +9,6 @@ import com.afweb.model.*;
 import com.afweb.model.ssns.*;
 import com.afweb.service.ServiceAFweb;
 
-
 import com.afweb.util.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -75,7 +74,7 @@ public class SsnsService {
 
     public static String TT_GetSub = "getCustomerTvSubscription";
     public static String TT_Vadulate = "validateWithAuth";
-    public static String TT_Quote = "quoteWithAuth";
+    public static String TT_Quote = "quotewithauth";
     public static String TT_SaveOrder = "saveOrder";
 
     private SsnsDataImp ssnsDataImp = new SsnsDataImp();
@@ -130,11 +129,11 @@ public class SsnsService {
                         }
                     }
                 }
-                cmd.add("getsub");
+                cmd.add("get customer ttv subscription");
                 cmd.add(TT_GetSub);
-                cmd.add("validate");
+                cmd.add("ttv validate");
                 cmd.add(TT_Vadulate);
-                cmd.add("quotation");
+                cmd.add("ttv quotation");
                 cmd.add(TT_Quote);
                 pData.setCmd(cmd);
 
@@ -150,7 +149,7 @@ public class SsnsService {
                     banid = operList[0];
                     prodid = operList[1];
                 }
-                cmd.add("getsub");
+                cmd.add("get customer ttv subscription");
                 cmd.add(TT_GetSub);
                 pData.setCmd(cmd);
 
@@ -649,9 +648,9 @@ public class SsnsService {
                         }
                     }
                 }
-                cmd.add("getdevice"); // cmd
-                cmd.add(WI_GetDevice);   // description
-                cmd.add("getdevicestatus");
+                cmd.add("get wifi device"); // description
+                cmd.add(WI_GetDevice);   // cmd
+                cmd.add("get wifi devicestatus");
                 cmd.add(WI_GetDeviceStatus);
                 pData.setCmd(cmd);
             } else if (oper.equals(WI_config)) {
@@ -687,9 +686,9 @@ public class SsnsService {
                         }
                     }
                 }
-                cmd.add("getdevice"); // cmd
-                cmd.add(WI_GetDevice);   // description
-                cmd.add("getdevicestatus");
+                cmd.add("get wifi device"); // description
+                cmd.add(WI_GetDevice);   // cmd
+                cmd.add("get wifi devicestatus");
                 cmd.add(WI_GetDeviceStatus);
                 pData.setCmd(cmd);
             } else if (oper.equals(WI_Callback)) {//"cancelAppointment")) {
@@ -1313,10 +1312,10 @@ public class SsnsService {
                 if ((banid.length() == 0) && (cust.length() == 0)) {
                     ;
                 } else {
-                    cmd.add("getapp"); // cmd
+                    cmd.add("get appointment"); // cmd
                     cmd.add(APP_GET_APP);  // descriptoin
                 }
-                cmd.add("gettimeslot");
+                cmd.add("search timeslot");
                 cmd.add(APP_GET_TIMES);
                 pData.setCmd(cmd);
 
@@ -1361,10 +1360,10 @@ public class SsnsService {
                     if ((banid.length() == 0) && (cust.length() == 0)) {
                         ;
                     } else {
-                        cmd.add("getapp");
+                        cmd.add("get appointment");
                         cmd.add(APP_GET_APP);
                     }
-                    cmd.add("gettimeslot");
+                    cmd.add("search timeslot");
                     cmd.add(APP_GET_TIMES);
                     pData.setCmd(cmd);
                 }
@@ -1380,7 +1379,7 @@ public class SsnsService {
                     banid = operList[0];
                     cust = operList[1];
                 }
-                cmd.add("getapp");
+                cmd.add("get appointment");
                 cmd.add(APP_GET_APP);
                 pData.setCmd(cmd);
             } else if (oper.equals(APP_CAN_APP)) {//"cancelAppointment")) {
@@ -1982,8 +1981,8 @@ public class SsnsService {
 //    public static String APP_PRODUCT_TYPE_HSIC = "HSIC";
 //    public static String APP_PRODUCT_TYPE_SING = "SING";                
 
-                cmd.add("rt");
-                cmd.add(PIoper);
+                cmd.add("get " + PIoper + " productby id"); // description
+                cmd.add(PROD_GET_BYID); // cmd
                 pData.setCmd(cmd);
 
                 boolean stat = this.updateSsnsProdiuctInventoryByProdId(PIoper, banid, prodid, pData, dataObj, NAccObj);
@@ -2019,9 +2018,11 @@ public class SsnsService {
                 NAccObj.setRet(APP_FEATT_TYPE_SING);
                 NAccObj.setDown("splunkflow");
                 String PIoper = APP_FEATT_TYPE_SING;
-                cmd.add("rt");
-                cmd.add(PIoper);
+
+                cmd.add("get " + PIoper + " productby id"); // description
+                cmd.add(PROD_GET_BYID); // cmd
                 pData.setCmd(cmd);
+
                 boolean stat = this.updateSsnsProdiuctInventory(PIoper, banid, prodid, pData, dataObj, NAccObj);
                 if (stat == true) {
                     ArrayList<SsnsAcc> ssnsAccObjList = getSsnsDataImp().getSsnsAccObjList(NAccObj.getName(), NAccObj.getUid());
@@ -2051,9 +2052,11 @@ public class SsnsService {
                 NAccObj.setRet(APP_FEAT_TYPE_HSIC);
                 NAccObj.setDown("splunkflow");
                 PIoper = APP_FEAT_TYPE_HSIC;
-                cmd.add("rt");
-                cmd.add(PIoper);
+
+                cmd.add("get " + PIoper + " productby id"); // description
+                cmd.add(PROD_GET_BYID); // cmd
                 pData.setCmd(cmd);
+
                 stat = this.updateSsnsProdiuctInventory(PIoper, banid, prodid, pData, dataObj, NAccObj);
                 if (stat == true) {
                     ArrayList<SsnsAcc> ssnsAccObjList = getSsnsDataImp().getSsnsAccObjList(NAccObj.getName(), NAccObj.getUid());
@@ -2084,9 +2087,11 @@ public class SsnsService {
                 NAccObj.setRet(APP_FEAT_TYPE_TTV);
                 NAccObj.setDown("splunkflow");
                 PIoper = APP_FEAT_TYPE_TTV;
-                cmd.add("rt");
-                cmd.add(PIoper);
+
+                cmd.add("get " + PIoper + " productby id"); // description
+                cmd.add(PROD_GET_BYID); // cmd
                 pData.setCmd(cmd);
+
                 stat = this.updateSsnsProdiuctInventory(PIoper, banid, prodid, pData, dataObj, NAccObj);
                 if (stat == true) {
                     ArrayList<SsnsAcc> ssnsAccObjList = getSsnsDataImp().getSsnsAccObjList(NAccObj.getName(), NAccObj.getUid());
@@ -2864,7 +2869,6 @@ public class SsnsService {
 //            throw e;
 //        }
 //    }
-
     private String https_sendRequest_Process_Ssns(String method, String subResourcePath, Map<String, String> queryParams, Map<String, String> bodyParams)
             throws Exception {
         try {
