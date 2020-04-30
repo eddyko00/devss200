@@ -19,6 +19,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -113,7 +115,7 @@ public class SsnsRegression {
             ArrayList<String> servList = serviceAFweb.getSsnsprodAll(name, null, 0);
             for (int i = 0; i < servList.size(); i += 2) {
                 String servProd = servList.get(i);
-                int exitSrv = 200;
+                int exitSrv = 100;
                 if (app != null) {
                     if (app.length() > 0) {
                         if (app.equals(servProd)) {
@@ -129,14 +131,21 @@ public class SsnsRegression {
                     if (featN.indexOf("failed") != -1) {
                         continue;
                     }
+                    if (featN.indexOf("failed") != -1) {
+                        continue;
+                    }
                     testFeatList.add(featN);
+                    Set<String> set = new HashSet<>();
 
-                    ArrayList<SsnsAcc> SsnsAcclist = getSsnsDataImp().getSsnsAccObjListByFeature(servProd, featN, 15);
+                    ArrayList<SsnsAcc> SsnsAcclist = getSsnsDataImp().getSsnsAccObjListByFeature(servProd, featN, 5);
                     if (SsnsAcclist != null) {
                         for (int k = 0; k < SsnsAcclist.size(); k++) {
                             SsnsAcc accObj = SsnsAcclist.get(k);
 
                             if (accObj.getType() > 10) {  // testfailed will increment this type
+                                continue;
+                            }
+                            if (!set.add(accObj.getBanid())) {
                                 continue;
                             }
                             testData tObj = new testData();
@@ -151,10 +160,10 @@ public class SsnsRegression {
                             if (added > exitTest) {
                                 break;
                             }
-                            if (added > exitSrv){  // 100 each product
+                            if (added > exitSrv) {  // 100 each product
                                 break;
                             }
-                                
+
 ////////////////////////////////////////////////
                         }
                     }
@@ -163,7 +172,7 @@ public class SsnsRegression {
                     }
                 }
             }
-            logger.info("> startMonitor " + name + " TC added " + added);
+
             String tzid = "America/New_York"; //EDT
             TimeZone tz = TimeZone.getTimeZone(tzid);
             Date d = new Date();
@@ -173,6 +182,8 @@ public class SsnsRegression {
             format.setTimeZone(tz);
             String ESTdate = format.format(d);
             String StartTC = "TC:" + added + " start:" + ESTdate;
+            logger.info("> startMonitor " + name + " " + StartTC);
+            testFeatList.add(0, StartTC);
 
             testData tObj = new testData();
             tObj.setAccid(0);
@@ -543,12 +554,15 @@ public class SsnsRegression {
                             continue;
                         }
                         long exec = 0;
+                        int totalTC = 0;
+
                         ArrayList<String> response = new ArrayList();
                         ArrayList<String> labResponse = new ArrayList();
                         if (LABURL.length() == 0) {
                             passSt = R_FAIL;
-                            
+
                             response = serviceAFweb.testSsnsprodPRocessByIdRT(CKey.ADMIN_USERNAME, null, accObj.getId() + "", accObj.getApp(), oper, LABURL);
+                            totalTC++;
                             if (response != null) {
                                 if (response.size() > 3) {
                                     String feat = response.get(0);
@@ -590,6 +604,7 @@ public class SsnsRegression {
                             passSt = R_FAIL;
                             String PR = "";
                             response = serviceAFweb.testSsnsprodPRocessByIdRT(CKey.ADMIN_USERNAME, null, accObj.getId() + "", accObj.getApp(), oper, PR);
+                            totalTC++;
                             if (response != null) {
                                 if (response.size() > 3) {
                                     String feat = response.get(0);
@@ -613,6 +628,9 @@ public class SsnsRegression {
                         reportObj.setName(nameRepId);
                         reportObj.setStatus(ConstantKey.OPEN);
                         reportObj.setRet(passSt);
+                        if (totalTC > 0) {
+                            exec = exec / totalTC;
+                        }
                         reportObj.setExec(exec);
 
                         reportObj.setApp(accObj.getApp());
@@ -624,6 +642,35 @@ public class SsnsRegression {
                         reportObj.setType(reportReportObj.getId()); // reference to report test case
                         reportObj.setUid(REPORT_TESE_CASE);
 
+                        // data too big
+                        int charSize = 0;
+                        ArrayList responseTmp = new ArrayList();
+                        for (int i = 0; i < response.size(); i++) {
+                            String st = response.get(i);
+                            charSize += st.length();
+                            if (charSize > 6000) {
+                                responseTmp.add("Data truncation too long ");
+                                break;
+                            }
+                            responseTmp.add(st);
+                        }
+                        response = responseTmp;
+
+                        ///////////////////
+                        charSize = 0;
+                        responseTmp = new ArrayList();
+                        for (int i = 0; i < labResponse.size(); i++) {
+                            String st = labResponse.get(i);
+                            charSize += st.length();
+                            if (charSize > 6000) {
+                                responseTmp.add("Data truncation too long ");
+                                break;
+                            }
+                            responseTmp.add(st);
+                        }
+                        labResponse = responseTmp;
+                        ///////////////////
+
                         ProductData pDataNew = new ProductData();
                         pDataNew.setPostParam(pData.getPostParam());
                         pDataNew.setFlow(response);
@@ -632,6 +679,7 @@ public class SsnsRegression {
                         String nameSt = new ObjectMapper().writeValueAsString(pDataNew);
 
                         //////exception with not sure why so make sure not special #
+//                        logger.info("nameSt size " + nameSt.length());
                         if (nameSt.indexOf("#") != -1) {
 //                            logger.info("# found");
                             nameSt = nameSt.replaceAll("#", "");
@@ -670,7 +718,14 @@ public class SsnsRegression {
         if ((sizeOne < 6) || (sizeTwo < 6)) {
             return false;
         }
-
+        String tmp = listOne.get(0);
+        if (tmp.indexOf("testfailed") != -1) {
+            return false;
+        }
+        tmp = listTwo.get(0);
+        if (tmp.indexOf("testfailed") != -1) {
+            return false;
+        }
         ArrayList<String> listOneTmp = new ArrayList();
         for (int i = 5; i < listOne.size(); i++) {
             listOneTmp.add(listOne.get(i));
@@ -714,6 +769,9 @@ public class SsnsRegression {
             }
 
             SsReport reportReportObj = reportObjList.get(0);
+
+            ArrayList<String> idList = getMoniterIDList(reportReportObj);
+
             ArrayList<String> overviewList = new ArrayList();
             ArrayList<String> testRList = new ArrayList();
             String nameRepId = name + "_" + reportReportObj.getId();
@@ -740,7 +798,23 @@ public class SsnsRegression {
             if (dataSt.length() > 0) {
                 reportdata = new ObjectMapper().readValue(dataSt, ReportData.class);
             }
+            if (idList != null) {
+
+                String tzid = "America/New_York"; //EDT
+                TimeZone tz = TimeZone.getTimeZone(tzid);
+                Date d = new Date();
+                // timezone symbol (z) included in the format pattern 
+                DateFormat format = new SimpleDateFormat("M/dd/yyyy hh:mm a z");
+                // format date in target timezone
+                format.setTimeZone(tz);
+                String ESTdate = format.format(d);
+
+                String NumTC = name + " TC remaining " + idList.size() + " time:" + ESTdate;;
+                testRList.add(0, NumTC);
+                overviewList.add(0, NumTC);
+            }
             reportdata.setReportList(testRList);
+
             dataSt = new ObjectMapper().writeValueAsString(reportdata);
             restulReportObj.setData(dataSt);
 
@@ -805,18 +879,24 @@ public class SsnsRegression {
                 String reportLine = app + "," + oper + ",size," + operList.get(j + 1);
                 testRList.add(reportLine);
 
-                ArrayList<SsReport> reportOperList = getSsnsDataImp().getSsReportByFeatureOperIdList(nameRepId, app, oper, 0);
-                if (reportOperList != null) {
-                    for (int k = 0; k < reportOperList.size(); k++) {
-                        SsReport rObj = reportOperList.get(k);
-                        reportLine = rObj.getId() + "," + rObj.getCusid() + "," + rObj.getBanid() + "," + rObj.getTiid() + "," + rObj.getRet() + "," + rObj.getExec();
-                        testRList.add(reportLine);
+                ArrayList<String> idReportList = getSsnsDataImp().getSsReportByFeatureOperIdListName(nameRepId, app, oper);
+                if (idReportList != null) {
+                    for (int k = 0; k < idReportList.size(); k++) {
+                        String idSt = idReportList.get(k);
+                        int id = Integer.parseInt(idSt);
+                        SsReport rObj = getSsnsDataImp().getSsReportByID(id);
+                        if (rObj != null) {
+                            reportLine = rObj.getId() + "," + rObj.getCusid() + "," + rObj.getBanid() + "," + rObj.getTiid() + "," + rObj.getRet() + "," + rObj.getExec();
+                            testRList.add(reportLine);
 
-                        if (rObj.getRet().indexOf(R_PASS) != -1) {
-                            Pass++;
-                            exec += rObj.getExec();
+                            if (rObj.getRet().indexOf(R_PASS) != -1) {
+                                Pass++;
+                                exec += rObj.getExec();
+                            } else {
+                                Fail++;
+                            }
                         } else {
-                            Fail++;
+                            logger.info("too large id " + id);
                         }
                     }
                 }

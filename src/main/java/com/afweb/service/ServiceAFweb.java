@@ -366,7 +366,6 @@ public class ServiceAFweb {
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
-
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////  
                     logger.info("> Debug end ");
@@ -416,7 +415,7 @@ public class ServiceAFweb {
                 ProcessAllLockCleanup();
             }
             if ((getServerObj().getProcessTimerCnt() % 13) == 0) {
-
+  
                 
             } else if ((getServerObj().getProcessTimerCnt() % 11) == 0) {
 
@@ -425,12 +424,14 @@ public class ServiceAFweb {
                 //////require to save memory
                 System.gc();
                 //////require to save memory
+                
 
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
 
 
-
             } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
+                //10 Sec * 5 ~ 1 minutes
+
 
             } else if ((getServerObj().getProcessTimerCnt() % 2) == 0) {
 

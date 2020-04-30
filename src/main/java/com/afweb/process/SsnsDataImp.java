@@ -165,6 +165,10 @@ public class SsnsDataImp {
         return ssnsdb.getSsnsAccObjListByFeatureCnt(name);
     }
 
+    public ArrayList<String> getSsReportByFeatureOperIdListName(String name, String app, String oper) {
+        return ssnsdb.getSsReportByFeatureOperIdListName(name, app, oper);
+    }
+
     public ArrayList<SsReport> getSsReportByFeatureOperIdList(String name, String app, String oper, int length) {
         return ssnsdb.getSsReportByFeatureOperIdList(name, app, oper, length);
     }
@@ -188,7 +192,6 @@ public class SsnsDataImp {
 //    public ArrayList<ProdSummary> getSsnsAccObjSummaryListByApp(String app, int length) {
 //        return ssnsdb.getSsnsAccObjSummaryListByApp(app, length);
 //    }
-
     public ArrayList<SsnsAcc> getSsnsAccObjListByApp(String app, int length) {
         return ssnsdb.getSsnsAccObjListByApp(app, length);
     }
@@ -209,11 +212,11 @@ public class SsnsDataImp {
         return ssnsdb.getSsnsAccObjList(name, uid);
     }
 
-    public ArrayList<SsReport> getSsReportAll () {
+    public ArrayList<SsReport> getSsReportAll() {
         ArrayList<SsReport> ssReportObjList = ssnsdb.getSsReportObjList(10);
         return ssReportObjList;
     }
-    
+
     public SsReport getSsReportByID(int id) {
         ArrayList<SsReport> ssReportObjList = ssnsdb.getSsReportObjListByID(id);
         if (ssReportObjList != null) {
@@ -235,7 +238,6 @@ public class SsnsDataImp {
 //    public ArrayList<ProdSummary> getSsReportSummaryObjListByUid(String name, String uid) {
 //        return ssnsdb.getSsReportSummaryObjListByUid(name, uid);
 //    }
-
     public ArrayList<SsReport> getSsReportObjListByUidDesc(String name, String uid) {
         return ssnsdb.getSsReportObjListByUidDesc(name, uid);
     }

@@ -7,6 +7,8 @@ package com.afweb.process;
 
 import com.afweb.model.*;
 import com.afweb.model.ssns.ProdSummary;
+import static com.afweb.process.AccountDB.checkCallRemoteSQL_Mysql;
+import static com.afweb.process.AccountDB.logger;
 
 import com.afweb.service.ServiceAFweb;
 import com.afweb.service.ServiceRemoteDB;
@@ -988,6 +990,12 @@ public class SsnsDataDB {
         return cnt;
     }
 
+    public ArrayList<String> getSsReportByFeatureOperIdListName(String name, String app, String oper) {
+        String sql = "select id as id from ssreport where name='" + name + "' and app='" + app + "' and oper='" + oper + "'";
+        ArrayList entries = this.getAllIdSQL(sql);
+        return entries;
+    }
+
     public ArrayList<SsReport> getSsReportByFeatureOperIdList(String name, String app, String oper, int length) {
         String sql = "select * from ssreport where name='" + name + "' and app='" + app + "' and oper='" + oper + "'";
         sql = ServiceAFweb.getSQLLengh(sql, length);
@@ -1073,7 +1081,6 @@ public class SsnsDataDB {
 //        }
 //        return null;
 //    }
-
 //    public ArrayList<ProdSummary> getSsnsAccObjSummaryListByApp(String app, int length) {
 //        String sql = "select id as parm1, cusid as parm2, banid as parm3, tiid as parm4,"
 //                + " oper as parm5, down as parm6, ret as parm7  from ssnsacc "
@@ -1099,7 +1106,6 @@ public class SsnsDataDB {
 //        }
 //        return null;
 //    }
-
     public ArrayList<SsnsAcc> getSsnsAccObjListByApp(String app, int length) {
         String sql = "select * from ssnsacc where app='" + app + "'";
         ArrayList entries = getAllSsnsAccSQL(sql, length);
@@ -1277,6 +1283,34 @@ public class SsnsDataDB {
         }
         return null;
     }
+
+    public ArrayList getAllIdSQL(String sql) {
+        if (checkCallRemoteSQL_Mysql() == true) {
+            ArrayList nnList;
+            try {
+                nnList = remoteDB.getAllIdSqlRemoteDB_RemoteMysql(sql);
+                return nnList;
+            } catch (Exception ex) {
+            }
+            return null;
+        }
+
+        try {
+            List<String> entries = new ArrayList<>();
+            entries.clear();
+            entries = this.jdbcTemplate.query(sql, new RowMapper() {
+                public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    String name = rs.getString("id");
+                    return name;
+                }
+            });
+            return (ArrayList) entries;
+        } catch (Exception e) {
+            logger.info("> getAllIdSQL exception " + e.getMessage());
+        }
+        return null;
+    }
+////////////////////    
 
     public ArrayList<Pram7RDB> getAll7ParamSQL(String sql) {
         if (checkCallRemoveSQL_Mysql() == true) {
