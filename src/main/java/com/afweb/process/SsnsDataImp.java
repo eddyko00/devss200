@@ -82,6 +82,7 @@ public class SsnsDataImp {
         return ssnsdb.updatSsReportDataStatusTypeRetById(id, data, status, type, ret);
     }
 
+   
     public int updatSsReportDataStatusTypeById(int id, String data, int status, int type) {
         return ssnsdb.updatSsReportDataStatusTypeById(id, data, status, type);
     }

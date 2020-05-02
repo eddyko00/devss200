@@ -618,7 +618,7 @@ public class SsnsRegression {
                                     exec = Long.parseLong(execSt);
                                     labResponse = serviceAFweb.testSsnsprodPRocessByIdRT(CKey.ADMIN_USERNAME, null, accObj.getId() + "", accObj.getApp(), oper, LABURL);
                                     boolean result = compareArraySame(response, labResponse);
-                                    if (result = true) {
+                                    if (result == true) {
                                         passSt = R_PASS;
                                     } else {
                                         passSt = R_FAIL;
@@ -803,6 +803,8 @@ public class SsnsRegression {
             if (dataSt.length() > 0) {
                 reportdata = new ObjectMapper().readValue(dataSt, ReportData.class);
             }
+
+            String NumTC = "";
             if (idList != null) {
 
                 String tzid = "America/New_York"; //EDT
@@ -814,7 +816,7 @@ public class SsnsRegression {
                 format.setTimeZone(tz);
                 String ESTdate = format.format(d);
 
-                String NumTC = name + " TC remaining " + idList.size() + " time:" + ESTdate;;
+                NumTC = name + " TC remaining " + idList.size() + " time:" + ESTdate;;
                 testRList.add(0, NumTC);
                 overviewList.add(0, NumTC);
             }
@@ -822,13 +824,15 @@ public class SsnsRegression {
 
             dataSt = new ObjectMapper().writeValueAsString(reportdata);
             restulReportObj.setData(dataSt);
-
+            if (NumTC.length() > 0) {
+                restulReportObj.setRet(NumTC);
+            }
             Calendar dateNow = TimeConvertion.getCurrentCalendar();
             long ctime = dateNow.getTimeInMillis();
             restulReportObj.setUpdatedatel(ctime);
             restulReportObj.setUpdatedatedisplay(new java.sql.Date(ctime));
-            int ret = getSsnsDataImp().updatSsReportDataStatusTypeById(restulReportObj.getId(), restulReportObj.getData(),
-                    restulReportObj.getStatus(), restulReportObj.getType());
+            int ret = getSsnsDataImp().updatSsReportDataStatusTypeRetById(restulReportObj.getId(), restulReportObj.getData(),
+                    restulReportObj.getStatus(), restulReportObj.getType(), restulReportObj.getRet());
 
 ////////////////
 /////////// put back to the main user
@@ -851,11 +855,14 @@ public class SsnsRegression {
             reportdata.setReportList(overviewList);
             dataSt = new ObjectMapper().writeValueAsString(reportdata);
             userReportObj.setData(dataSt);
-
+            
+            if (NumTC.length() > 0) {
+                userReportObj.setRet(NumTC);
+            }            
             userReportObj.setUpdatedatel(ctime);
             userReportObj.setUpdatedatedisplay(new java.sql.Date(ctime));
-            ret = getSsnsDataImp().updatSsReportDataStatusTypeById(userReportObj.getId(), userReportObj.getData(),
-                    userReportObj.getStatus(), userReportObj.getType());
+            ret = getSsnsDataImp().updatSsReportDataStatusTypeRetById(userReportObj.getId(), userReportObj.getData(),
+                    userReportObj.getStatus(), userReportObj.getType(), userReportObj.getRet());
 
         } catch (Exception ex) {
         }

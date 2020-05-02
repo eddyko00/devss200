@@ -698,6 +698,7 @@ public class SsnsDataDB {
         return 0;
     }
 
+
     public int updatSsReportDataStatusTypeById(int id, String dataSt, int status, int type) {
         try {
 

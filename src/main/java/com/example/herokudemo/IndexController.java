@@ -62,7 +62,7 @@ public class IndexController {
         arrayString.add("/cust/{username}/id/{id}/mon/stop");
         arrayString.add("/cust/{username}/id/{id}/mon/pid/{pid}");
 
-        arrayString.add("/cust/{username}/id/{id}/regression/start?url=");
+        arrayString.add("/cust/{username}/id/{id}/regression/start?app=&url=");
         arrayString.add("/cust/{username}/id/{id}/regression/stop");
 
         arrayString.add("/cust/{username}/id/{id}/serv");
@@ -80,7 +80,6 @@ public class IndexController {
         arrayString.add("/cust/{username}/id/{id}/serv/app/id/{pid}");
         arrayString.add("/cust/{username}/id/{id}/serv/app/id/{pid}/rt/getappointment");
         arrayString.add("/cust/{username}/id/{id}/serv/app/id/{pid}/rt/searchtimeslot");
-
 
         arrayString.add("/cust/{username}/id/{id}/serv/app/featureall");
         arrayString.add("/cust/{username}/id/{id}/serv/app/feature?name=");
@@ -172,6 +171,9 @@ public class IndexController {
         if (urlSt != null) {
             if (urlSt.length() > 0) {
                 labURL = urlSt;
+                if (urlSt.equals("locallab")) {
+                    labURL = ServiceAFweb.LOCALAB_URL;
+                }
             }
         }
 
