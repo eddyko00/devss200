@@ -6,7 +6,7 @@ public class CKey {
     public static String FileLocalPathTemp = "C:\\TEMP\\";
 
     public static final boolean LocalPCflag = true; // true;
-
+    public static final String MYSQL_SERVICE_HOST = "100.65.128.12";
     //////////////////////
     // remember to update the application properties      
     public static final int LOCAL_MYSQL = 4; //jdbc:mysql://localhost:3306/db_sample       
@@ -36,7 +36,7 @@ public class CKey {
 //    //
 //    //
     public static String WEBPOST_OP_PHP = "/health.php";
-    public static String URL_PATH_OP_DB_PHP1_TMP = "http://devphp-project001.paas-app-east-np.tabcsl.telabcus.com";      
+    public static String URL_PATH_OP_DB_PHP1_TMP = "http://devphp-project001.paas-app-east-np.tabcsl.telabcus.com";
     public static final String URL_PATH_OP_TMP = "http://devssns-project001.paas-app-east-np.tabcsl.telabcus.com";
 //    public static String URL_PATH_OP_DB_PHP1_TMP = "http://devphp-web007.apps.us-east-1.starter.openshift-online.com";      
 //    public static final String URL_PATH_OP_TMP = "http://iisweb-web007.apps.us-east-1.starter.openshift-online.com";
