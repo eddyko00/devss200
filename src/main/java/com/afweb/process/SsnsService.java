@@ -80,7 +80,7 @@ public class SsnsService {
     private SsnsDataImp ssnsDataImp = new SsnsDataImp();
 
 ////////////////////////////////////////////    
-
+ 
     public static String parseTTVCFeature(String outputSt, String oper, String postParm) {
 
         if (outputSt == null) {
@@ -1431,6 +1431,74 @@ public class SsnsService {
             }
             logger.info("> updateSsnsProdiuctInventory feat " + featTTV);
             NAccObj.setName(featTTV);
+            NAccObj.setBanid(banid);
+            NAccObj.setCusid(dataObj.getCusid());
+            NAccObj.setUid(dataObj.getUid());
+            NAccObj.setApp(dataObj.getApp());
+            NAccObj.setTiid(dataObj.getTiid());
+            NAccObj.setOper(dataObj.getOper());
+
+            NAccObj.setDown(NAccObj.getDown());
+            NAccObj.setRet(NAccObj.getRet());
+
+            NAccObj.setExec(dataObj.getExec());
+
+            String nameSt = new ObjectMapper().writeValueAsString(pData);
+            NAccObj.setData(nameSt);
+
+            NAccObj.setUpdatedatel(dataObj.getUpdatedatel());
+            NAccObj.setUpdatedatedisplay(new java.sql.Date(dataObj.getUpdatedatel()));
+
+            return true;
+        } catch (Exception ex) {
+            logger.info("> updateSsnsProdiuctInventory Exception " + ex.getMessage());
+        }
+        return false;
+    }
+
+    public boolean updateSsnsProdiuctInventory(String oper, String banid, String prodid, ProductData pData, SsnsData dataObj, SsnsAcc NAccObj) {
+        try {
+
+            String outputSt = null;
+
+            outputSt = SendSsnsProdiuctInventory(ServiceAFweb.URL_PRODUCT, banid, prodid, oper, null);
+            if (outputSt == null) {
+                return false;
+            }
+            if (outputSt.indexOf("responseCode:400500") != -1) {
+                return false;
+            }
+            String feat = "";
+            if (oper.equals(SsnsService.APP_FEAT_TYPE_HSIC)) {
+                feat = parseProductInternetFeature(outputSt, dataObj.getOper());
+
+            } else if (oper.equals(SsnsService.APP_FEAT_TYPE_TTV)) {
+                feat = parseProductTtvFeature(outputSt, dataObj.getOper());
+
+            } else if (oper.equals(SsnsService.APP_FEATT_TYPE_SING)) {
+                feat = parseProductPhoneFeature(outputSt, dataObj.getOper());
+            }
+
+            if (feat == null) {
+                return false;
+            }
+
+//            logger.info("> updateSsnsProdiuctInventory feat " + featTTV);
+/////////////TTV  
+            ArrayList<String> flow = new ArrayList();
+            int faulure = getSsnsFlowTrace(dataObj, flow);
+            if (flow == null) {
+                logger.info("> updateSsnsProdiuctInventory skip no flow");
+                return false;
+            }
+
+            pData.setFlow(flow);
+
+            if (faulure == 1) {
+                feat += ":failed";
+            }
+            logger.info("> updateSsnsProdiuctInventory feat " + feat);
+            NAccObj.setName(feat);
             NAccObj.setBanid(banid);
             NAccObj.setCusid(dataObj.getCusid());
             NAccObj.setUid(dataObj.getUid());

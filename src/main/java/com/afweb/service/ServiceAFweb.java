@@ -25,9 +25,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 import java.util.logging.Logger;
 import javax.sql.DataSource;
@@ -66,7 +69,8 @@ public class ServiceAFweb {
     public static String URL_LOCALDB = "";
     public static String FileLocalPath = "";
 
-        public static String LOCALAB_URL = "http://L097105:8080"; //"http://localhost:8080";
+    public static String LOCALAB_URL = "http://L097105:8080"; //"http://localhost:8080";
+
     /**
      * @return the serverObj
      */
@@ -366,8 +370,6 @@ public class ServiceAFweb {
 //
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////  
                     logger.info("> Debug end ");
                 }
@@ -417,6 +419,7 @@ public class ServiceAFweb {
             }
             if ((getServerObj().getProcessTimerCnt() % 13) == 0) {
 
+
             } else if ((getServerObj().getProcessTimerCnt() % 11) == 0) {
 
 
@@ -425,12 +428,9 @@ public class ServiceAFweb {
                 System.gc();
                 //////require to save memory
 
-
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
 
-
             } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
-
 
             } else if ((getServerObj().getProcessTimerCnt() % 2) == 0) {
 
@@ -1107,7 +1107,7 @@ public class ServiceAFweb {
         }
         return 1;
     }
-    
+
     public String getSsReportMonExec(String EmailUserName, String IDSt) {
 
         if (getServerObj().isSysMaintenance() == true) {
@@ -1660,9 +1660,37 @@ public class ServiceAFweb {
                 ArrayList<String> outputList = new ArrayList();
                 SsnsService ss = new SsnsService();
                 String feat = "";
+                if (Oper.equals(SsnsService.APP_GET_APP)) {
 
-                if (Oper.equals(SsnsService.APP_GET_APP) || Oper.equals(SsnsService.APP_GET_TIMES)) {
-                    feat = ss.TestFeatureSsnsProdApp(ssnsAccObj, outputList, Oper, LABURL);
+                    feat = ss.TestFeatureSsnsProdApp(ssnsAccObj, outputList, SsnsService.APP_GET_APP, LABURL);
+                    //                    logger.info("> getSsnsprodAppByIdRT " + Oper + " feat " + feat);
+                    if (((feat == null) || (feat.length() == 0)) || (feat.indexOf(":testfailed") != -1)) {
+                        // disabled this Acc Obj
+                        int type = ssnsAccObj.getType();
+                        String name = ssnsAccObj.getName();
+                        int status = ssnsAccObj.getStatus();
+                        type = type + 1; // increate error count
+
+                        this.getSsnsDataImp().updatSsnsAccNameStatusTypeById(ssnsAccObj.getId(), name, status, type);
+                    } else {
+                        String name = ssnsAccObj.getName();
+                        int type = ssnsAccObj.getType();
+                        int status = ssnsAccObj.getStatus();
+                        if (type > 0) {
+                            type = 0; // clear error count
+                            this.getSsnsDataImp().updatSsnsAccNameStatusTypeById(ssnsAccObj.getId(), name, status, type);
+                        }
+                    }
+                }
+                if (Oper.equals(SsnsService.APP_GET_TIMES)) {
+
+                    String featTimeSlot = ss.TestFeatureSsnsProdApp(ssnsAccObj, outputList, SsnsService.APP_GET_TIMES, LABURL);
+                    if ((ssnsAccObj.getBanid().length() != 0) && (ssnsAccObj.getCusid().length() != 0)) {
+                        outputList = new ArrayList();
+                        feat = ss.TestFeatureSsnsProdApp(ssnsAccObj, outputList, SsnsService.APP_GET_APP, LABURL);
+                    } else {
+                        feat = featTimeSlot;
+                    }
 //                    logger.info("> getSsnsprodAppByIdRT " + Oper + " feat " + feat);
                     if (((feat == null) || (feat.length() == 0)) || (feat.indexOf(":testfailed") != -1)) {
                         // disabled this Acc Obj
@@ -1673,6 +1701,16 @@ public class ServiceAFweb {
 
                         this.getSsnsDataImp().updatSsnsAccNameStatusTypeById(ssnsAccObj.getId(), name, status, type);
                     } else {
+                        if (((featTimeSlot == null) || (featTimeSlot.length() == 0)) || (featTimeSlot.indexOf(":testfailed") != -1)) {
+                            feat += ":testfailed";
+                        }
+                        if ((ssnsAccObj.getBanid().length() != 0) && (ssnsAccObj.getCusid().length() != 0)) {
+                            String feature = outputList.get(0);
+                            feature += ":startdate";
+                            outputList.remove(0);
+                            outputList.add(0, feature);
+                        }
+
                         String name = ssnsAccObj.getName();
                         int type = ssnsAccObj.getType();
                         int status = ssnsAccObj.getStatus();

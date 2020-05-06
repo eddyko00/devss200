@@ -597,24 +597,6 @@ public class IndexController {
         return ret;
     }
 
-    @RequestMapping(value = "/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/getdevice", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public @ResponseBody
-    ArrayList getwifiidrt(
-            @PathVariable("username") String username,
-            @PathVariable("id") String idSt,
-            @PathVariable("pid") String pidSt,
-            HttpServletRequest request, HttpServletResponse response
-    ) {
-        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
-        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
-            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-            return null;
-        }
-        String oper = SsnsService.WI_GetDevice;
-        ArrayList<String> ret = afWebService.testSsnsprodWifiByIdRT(username, idSt, pidSt, SsnsService.APP_WIFI, oper, "");
-        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
-        return ret;
-    }
 
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/rttest/getdevicestatus", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
@@ -634,7 +616,24 @@ public class IndexController {
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
-
+    @RequestMapping(value = "/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/getdevicestatus", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public @ResponseBody
+    ArrayList getwifiidrtdevstatus(
+            @PathVariable("username") String username,
+            @PathVariable("id") String idSt,
+            @PathVariable("pid") String pidSt,
+            HttpServletRequest request, HttpServletResponse response
+    ) {
+        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return null;
+        }
+        String oper = SsnsService.WI_GetDeviceStatus;
+        ArrayList<String> ret = afWebService.testSsnsprodWifiByIdRT(username, idSt, pidSt, SsnsService.APP_WIFI, oper, "");
+        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
+        return ret;
+    }
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/getdevices", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     ArrayList getwifiidrtstatus(
