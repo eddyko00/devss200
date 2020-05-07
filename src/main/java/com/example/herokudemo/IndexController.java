@@ -58,7 +58,7 @@ public class IndexController {
         arrayString.add("/cust/{username}/id/{id}/regression/stop");
 
         arrayString.add("/cust/{username}/id/{id}/mon");
-        arrayString.add("/cust/{username}/id/{id}/mon/start");
+        arrayString.add("/cust/{username}/id/{id}/mon/start?app=");
         arrayString.add("/cust/{username}/id/{id}/mon/stop");
         arrayString.add("/cust/{username}/id/{id}/mon/pid/{pid}");
 
@@ -269,6 +269,7 @@ public class IndexController {
     int getAllmonStart(
             @PathVariable("username") String username,
             @PathVariable("id") String idSt,
+            @RequestParam(value = "app", required = true) String appSt,            
             HttpServletRequest request, HttpServletResponse response
     ) {
         ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
@@ -277,7 +278,7 @@ public class IndexController {
             return 0;
         }
 
-        return afWebService.getSsReportMonStart(username, idSt);
+        return afWebService.getSsReportMonStart(username, idSt, appSt);
     }
 
     @RequestMapping(value = "/cust/{username}/id/{id}/mon/stop", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})

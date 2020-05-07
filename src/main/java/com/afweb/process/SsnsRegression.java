@@ -84,8 +84,8 @@ public class SsnsRegression {
         return 0;
     }
 
-    public int startMonitor(ServiceAFweb serviceAFweb, String name) { //CKey.ADMIN_USERNAME) {
-        return startMonitorRegression(serviceAFweb, name, "", "");
+    public int startMonitor(ServiceAFweb serviceAFweb, String name, String app) { //CKey.ADMIN_USERNAME) {
+        return startMonitorRegression(serviceAFweb, name, app, "");
     }
 
     public int startMonitorRegression(ServiceAFweb serviceAFweb, String name, String app, String labURL) { //CKey.ADMIN_USERNAME) {
@@ -315,11 +315,16 @@ public class SsnsRegression {
         try {
             //Start process
             String uid = REPORT_REPORT;
+
+            Set<String> set = new HashSet<>();
             ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, uid);
             if (ssReportObjList != null) {
                 for (int i = 0; i < ssReportObjList.size(); i++) {
                     SsReport reportObj = ssReportObjList.get(i);
                     if (reportObj.getStatus() == ConstantKey.INITIAL) {
+                        if (!set.add(reportObj.getName())) {
+                            continue;
+                        }
                         reportNameL.add(reportObj.getName());
                     }
                 }
@@ -348,7 +353,7 @@ public class SsnsRegression {
     }
 
     ////////////////////////////////
-    ArrayList<String> moniterNameArray = new ArrayList();
+    public static ArrayList<String> moniterNameArray = new ArrayList();
 
     private ArrayList updateMonitorNameArray() {
         if (moniterNameArray != null && moniterNameArray.size() > 0) {
@@ -572,9 +577,12 @@ public class SsnsRegression {
                                 if (response.size() > 3) {
                                     String feat = response.get(0);
                                     String execSt = response.get(2);
-                                    execSt = ServiceAFweb.replaceAll("elapsedTime:", "", execSt);
-                                    exec = Long.parseLong(execSt);
-
+//                                    execSt = ServiceAFweb.replaceAll("elapsedTime:", "", execSt);
+                                    int index = execSt.indexOf("elapsedTime:");
+                                    if (index != -1) {
+                                        execSt = execSt.substring(index + 12);
+                                        exec = Long.parseLong(execSt);
+                                    }
                                     if (feat.equals(accObj.getName())) {
                                         passSt = R_PASS;
                                     } else {
@@ -614,8 +622,12 @@ public class SsnsRegression {
                                 if (response.size() > 3) {
                                     String feat = response.get(0);
                                     String execSt = response.get(2);
-                                    execSt = ServiceAFweb.replaceAll("elapsedTime:", "", execSt);
-                                    exec = Long.parseLong(execSt);
+//                                    execSt = ServiceAFweb.replaceAll("elapsedTime:", "", execSt);
+                                    int index = execSt.indexOf("elapsedTime:");
+                                    if (index != -1) {
+                                        execSt = execSt.substring(index + 12);
+                                        exec = Long.parseLong(execSt);
+                                    }
                                     labResponse = serviceAFweb.testSsnsprodPRocessByIdRT(CKey.ADMIN_USERNAME, null, accObj.getId() + "", accObj.getApp(), oper, LABURL);
                                     boolean result = compareArraySame(response, labResponse);
                                     if (result == true) {
@@ -855,10 +867,10 @@ public class SsnsRegression {
             reportdata.setReportList(overviewList);
             dataSt = new ObjectMapper().writeValueAsString(reportdata);
             userReportObj.setData(dataSt);
-            
+
             if (NumTC.length() > 0) {
                 userReportObj.setRet(NumTC);
-            }            
+            }
             userReportObj.setUpdatedatel(ctime);
             userReportObj.setUpdatedatedisplay(new java.sql.Date(ctime));
             ret = getSsnsDataImp().updatSsReportDataStatusTypeRetById(userReportObj.getId(), userReportObj.getData(),

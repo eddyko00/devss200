@@ -24,10 +24,16 @@ import java.net.HttpURLConnection;
 import java.net.Proxy;
 
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 import java.util.logging.Logger;
 import javax.net.ssl.HttpsURLConnection;
@@ -42,6 +48,7 @@ import static org.apache.http.protocol.HTTP.USER_AGENT;
 public class SsnsService {
 
     protected static Logger logger = Logger.getLogger("SsnsService");
+    public static Set<String> set = new HashSet<>();
 
     public static String APP_WIFI = "wifi";
     public static String APP_APP = "app";
@@ -80,7 +87,7 @@ public class SsnsService {
     private SsnsDataImp ssnsDataImp = new SsnsDataImp();
 
 ////////////////////////////////////////////    
- 
+
     public static String parseTTVCFeature(String outputSt, String oper, String postParm) {
 
         if (outputSt == null) {
@@ -220,7 +227,16 @@ public class SsnsService {
                 long elapsedTime = endTime - startTime;
 //            System.out.println("Elapsed time in milli seconds: " + elapsedTime);
                 if (inList != null) {
-                    inList.add("elapsedTime:" + elapsedTime);
+                    String tzid = "America/New_York"; //EDT
+                    TimeZone tz = TimeZone.getTimeZone(tzid);
+                    Date d = new Date(startTime);
+                    // timezone symbol (z) included in the format pattern 
+                    DateFormat format = new SimpleDateFormat("M/dd/yyyy hh:mm a z");
+                    // format date in target timezone
+                    format.setTimeZone(tz);
+                    String ESTdate = format.format(d);
+
+                    inList.add(ESTdate + " elapsedTime:" + elapsedTime);
                     inList.add("output:");
                 }
                 return output;
@@ -246,7 +262,16 @@ public class SsnsService {
                 long elapsedTime = endTime - startTime;
 //            System.out.println("Elapsed time in milli seconds: " + elapsedTime);
                 if (inList != null) {
-                    inList.add("elapsedTime:" + elapsedTime);
+                    String tzid = "America/New_York"; //EDT
+                    TimeZone tz = TimeZone.getTimeZone(tzid);
+                    Date d = new Date(startTime);
+                    // timezone symbol (z) included in the format pattern 
+                    DateFormat format = new SimpleDateFormat("M/dd/yyyy hh:mm a z");
+                    // format date in target timezone
+                    format.setTimeZone(tz);
+                    String ESTdate = format.format(d);
+
+                    inList.add(ESTdate + " elapsedTime:" + elapsedTime);
 
                     String bodyElement = new ObjectMapper().writeValueAsString(map);
                     inList.add("bodyElement:" + bodyElement);
@@ -277,7 +302,16 @@ public class SsnsService {
                 long elapsedTime = endTime - startTime;
 //            System.out.println("Elapsed time in milli seconds: " + elapsedTime);
                 if (inList != null) {
-                    inList.add("elapsedTime:" + elapsedTime);
+                    String tzid = "America/New_York"; //EDT
+                    TimeZone tz = TimeZone.getTimeZone(tzid);
+                    Date d = new Date(startTime);
+                    // timezone symbol (z) included in the format pattern 
+                    DateFormat format = new SimpleDateFormat("M/dd/yyyy hh:mm a z");
+                    // format date in target timezone
+                    format.setTimeZone(tz);
+                    String ESTdate = format.format(d);
+
+                    inList.add(ESTdate + " elapsedTime:" + elapsedTime);
 
                     String bodyElement = new ObjectMapper().writeValueAsString(map);
                     inList.add("bodyElement:" + bodyElement);
@@ -469,114 +503,6 @@ public class SsnsService {
         return featTTV;
     }
 
-    // 1 faulure, 0 = success
-    public int getSsnsFlowTraceWifiCallback(SsnsData dataObj, ArrayList<String> flow, String postParm) {
-        if (postParm == null) {
-            return 1;
-        }
-        if (postParm.length() == 1) {
-            return 1;
-        }
-        String newUid = "";
-
-        if (postParm.indexOf("asynchronousRequest") != -1) {
-            String[] operList = postParm.split(",");
-            for (int j = 0; j < operList.length; j++) {
-                String inLine = operList[j];
-                if (inLine.indexOf("operationId") != -1) {
-                    String valueSt = inLine;
-                    valueSt = ServiceAFweb.replaceAll("\"", "", valueSt);
-                    valueSt = ServiceAFweb.replaceAll("operationId:", "", valueSt);
-                    newUid = valueSt;
-                    break;
-                }
-            }
-        }
-
-        if (newUid.length() == 0) {
-            return 1;
-        }
-
-        String uid = newUid;
-
-        ArrayList<SsnsData> ssnsList = getSsnsDataImp().getSsnsDataObjListByUid(dataObj.getApp(), uid);
-        if (ssnsList != null) {
-//            logger.info("> ssnsList " + ssnsList.size());
-            for (int i = 0; i < ssnsList.size(); i++) {
-                SsnsData data = ssnsList.get(i);
-                String flowSt = data.getDown();
-                if (flowSt.length() == 0) {
-                    flowSt = data.getOper();
-                }
-                flowSt += ":" + data.getExec();
-                String dataTxt = data.getData();
-                if (dataTxt.indexOf("[tocpresp,") != -1) {
-                    try {
-                        String valueSt = ServiceAFweb.replaceAll("[tocpresp,{node:", "", dataTxt);
-                        valueSt = valueSt.substring(0, valueSt.length() - 2);
-                        String filteredStr = valueSt.replaceAll(" ", "");
-                        String[] filteredList = filteredStr.split("><");
-
-                        flow.add(postParm);
-                        for (int k = 0; k < filteredList.length; k++) {
-                            String ln = filteredList[k];
-                            if (k == 0) {
-                                ln = ln + ">";
-                            } else if (k == filteredList.length - 1) {
-                                ln = "<" + ln;
-                            } else {
-                                ln = "<" + ln + ">";
-                            }
-                            flow.add(ln);
-                        }
-                        return 0;
-
-                    } catch (Exception ex) {
-                        logger.info(ex.getMessage());
-                    }
-                }
-
-            }
-        }
-        return 1;
-
-//        if (dataObj.getOper().equals(WI_config)) {
-//            String dataSt = dataObj.getData();
-//            dataSt = ServiceAFweb.replaceAll("\"", "", dataSt);
-//            dataSt = ServiceAFweb.replaceAll("[", "", dataSt);
-//            dataSt = ServiceAFweb.replaceAll("]", "", dataSt);
-//            dataSt = ServiceAFweb.replaceAll("{", "", dataSt);
-//            dataSt = ServiceAFweb.replaceAll("}", "", dataSt);
-//            String[] dataList = dataSt.split(",");
-//            String callUid = "";
-//            for (int i = 0; i < dataList.length; i++) {
-//                String inLine = dataList[i];
-//                if (inLine.indexOf("operationId") != -1) {
-//                    String valueSt = inLine;
-//                    valueSt = ServiceAFweb.replaceAll("\"", "", valueSt);
-//                    valueSt = ServiceAFweb.replaceAll("operationId:", "", valueSt);
-//                    if (valueSt.length() >= 36) {
-//                        callUid = valueSt.substring(0, 36);  // overrid uuid for call back
-//                        break;
-//                    }
-//                }
-//            }
-//            if (callUid.length() > 0) {
-//                ssnsList = getSsnsDataImp().getSsnsDataObjListByUid(dataObj.getApp(), callUid);
-//                if (ssnsList != null) {
-//                    for (int i = 0; i < ssnsList.size(); i++) {
-//                        SsnsData data = ssnsList.get(i);
-//                        String flowSt = data.getDown();
-//                        if (flowSt.length() == 0) {
-//                            flowSt = data.getOper();
-//                        }
-//                        flowSt += ":" + data.getExec();
-//                        flowSt += ":" + data.getData();
-//                        flow.add(flowSt);
-//                    }
-//                }
-//            }
-    }
 
     public String SendSsnsTestURL(String ProductURL, ArrayList<String> inList) {
         String url = ProductURL;
@@ -593,7 +519,16 @@ public class SsnsService {
             long elapsedTime = endTime - startTime;
 //            System.out.println("Elapsed time in milli seconds: " + elapsedTime);
             if (inList != null) {
-                inList.add("elapsedTime:" + elapsedTime);
+                String tzid = "America/New_York"; //EDT
+                TimeZone tz = TimeZone.getTimeZone(tzid);
+                Date d = new Date(startTime);
+                // timezone symbol (z) included in the format pattern 
+                DateFormat format = new SimpleDateFormat("M/dd/yyyy hh:mm a z");
+                // format date in target timezone
+                format.setTimeZone(tz);
+                String ESTdate = format.format(d);
+
+                inList.add(ESTdate + " elapsedTime:" + elapsedTime);
                 inList.add("output:");
             }
 
@@ -640,7 +575,16 @@ public class SsnsService {
             long elapsedTime = endTime - startTime;
 //            System.out.println("Elapsed time in milli seconds: " + elapsedTime);
             if (inList != null) {
-                inList.add("elapsedTime:" + elapsedTime);
+                String tzid = "America/New_York"; //EDT
+                TimeZone tz = TimeZone.getTimeZone(tzid);
+                Date d = new Date(startTime);
+                // timezone symbol (z) included in the format pattern 
+                DateFormat format = new SimpleDateFormat("M/dd/yyyy hh:mm a z");
+                // format date in target timezone
+                format.setTimeZone(tz);
+                String ESTdate = format.format(d);
+
+                inList.add(ESTdate + " elapsedTime:" + elapsedTime);
                 inList.add("output:");
             }
 
@@ -931,7 +875,16 @@ public class SsnsService {
             long elapsedTime = endTime - startTime;
 //            System.out.println("Elapsed time in milli seconds: " + elapsedTime);
             if (inList != null) {
-                inList.add("elapsedTime:" + elapsedTime);
+                String tzid = "America/New_York"; //EDT
+                TimeZone tz = TimeZone.getTimeZone(tzid);
+                Date d = new Date(startTime);
+                // timezone symbol (z) included in the format pattern 
+                DateFormat format = new SimpleDateFormat("M/dd/yyyy hh:mm a z");
+                // format date in target timezone
+                format.setTimeZone(tz);
+                String ESTdate = format.format(d);
+
+                inList.add(ESTdate + " elapsedTime:" + elapsedTime);
                 inList.add("output:");
             }
 
@@ -1027,7 +980,16 @@ public class SsnsService {
             long elapsedTime = endTime - startTime;
 //            System.out.println("Elapsed time in milli seconds: " + elapsedTime);
             if (inList != null) {
-                inList.add("elapsedTime:" + elapsedTime);
+                String tzid = "America/New_York"; //EDT
+                TimeZone tz = TimeZone.getTimeZone(tzid);
+                Date d = new Date(startTime);
+                // timezone symbol (z) included in the format pattern 
+                DateFormat format = new SimpleDateFormat("M/dd/yyyy hh:mm a z");
+                // format date in target timezone
+                format.setTimeZone(tz);
+                String ESTdate = format.format(d);
+
+                inList.add(ESTdate + " elapsedTime:" + elapsedTime);
                 inList.add("output:");
             }
             return output;
@@ -1086,7 +1048,7 @@ public class SsnsService {
         }
         try {
 
-            int quotaAmtInit = 0;
+            int callCInit = 0;
             int fifaInit = 0;
             int planInit = 0;
             int vmInit = 0;
@@ -1117,34 +1079,30 @@ public class SsnsService {
                     continue;
                 }
 
-                if (inLine.indexOf("hasVoicemail") != -1) {
-                    if (vmInit == 1) {
-                        continue;
-                    }
-                    vmInit = 1;
-                    String valueSt = outputList.get(outputList.size() - 1 - j + 1);
-                    if (valueSt.indexOf("false") != -1) {
-                        voicemail = 0;
-                    }
-                    if (valueSt.indexOf("true") != -1) {
-                        voicemail = 1;
-                    }
-                    continue;
-                }
-
                 if (inLine.indexOf("CallControl") != -1) {
 
-                    if (quotaAmtInit == 1) {
+                    if (callCInit == 1) {
                         continue;
                     }
-                    quotaAmtInit = 1;
+                    callCInit = 1;
                     String valueSt = checkProductNm(j, outputList);
                     if (valueSt.length() != 0) {
                         CallControl = valueSt;
                     }
                     continue;
                 }
+                if (inLine.indexOf("VoiceMail") != -1) {
 
+                    if (vmInit == 1) {
+                        continue;
+                    }
+                    vmInit = 1;
+                    String valueSt = checkProductNm(j, outputList);
+                    if (valueSt.length() != 0) {
+                        voicemail = 1;
+                    }
+                    continue;
+                }
                 if (inLine.indexOf("LocalLine") != -1) {
                     if (planInit == 1) {
                         continue;
@@ -1161,6 +1119,11 @@ public class SsnsService {
                     String valueSt = checkProductOfferingProductNm(j, outputList);
                     if (valueSt.length() != 0) {
                         PrimaryPricePlan = valueSt;
+                    } else {
+                        valueSt = checkProductNm(j, outputList);
+                        if (valueSt.length() != 0) {
+                            PrimaryPricePlan = valueSt;
+                        }
                     }
                     continue;
                 }
@@ -1199,10 +1162,10 @@ public class SsnsService {
     }
 
     public static String checkProductRelationshipProductNm(int j, ArrayList<String> outputList) {
-        for (int k = j; k <= outputList.size(); k++) {
+        for (int k = j; k < outputList.size(); k++) {
             String inL = outputList.get(outputList.size() - 1 - k);
             if (inL.indexOf("productRelationship") != -1) {
-                for (int m = k; m <= outputList.size(); m++) {
+                for (int m = k; m < outputList.size(); m++) {
                     String inLL = outputList.get(outputList.size() - 1 - m);
                     if (inLL.indexOf("productNm") != -1) {
                         String valueSt = outputList.get(outputList.size() - 1 - m + 1);
@@ -1218,7 +1181,7 @@ public class SsnsService {
     }
 
     public static String checkProductNm(int j, ArrayList<String> outputList) {
-        for (int k = j; k <= outputList.size(); k++) {
+        for (int k = j; k < outputList.size(); k++) {
             String inL = outputList.get(outputList.size() - 1 - k);
             if (inL.indexOf("productNm") != -1) {
                 String valueSt = outputList.get(outputList.size() - 1 - k + 1);
@@ -1232,20 +1195,24 @@ public class SsnsService {
     }
 
     public static String checkProductOfferingProductNm(int j, ArrayList<String> outputList) {
-        for (int k = j; k <= outputList.size(); k++) {
-            String inL = outputList.get(outputList.size() - 1 - k);
-            if (inL.indexOf("productOffering") != -1) {
-                for (int m = k; m <= outputList.size(); m++) {
-                    String inLL = outputList.get(outputList.size() - 1 - m);
-                    if (inLL.indexOf("productNm") != -1) {
-                        String valueSt = outputList.get(outputList.size() - 1 - m + 1);
-                        valueSt = ServiceAFweb.replaceAll("\"", "", valueSt);
-                        valueSt = ServiceAFweb.replaceAll("value:", "", valueSt);
-                        valueSt = ServiceAFweb.replaceAll(" ", "_", valueSt);
-                        return valueSt;
+        try {
+            for (int k = j; k < outputList.size(); k++) {
+                String inL = outputList.get(outputList.size() - 1 - k);
+                if (inL.indexOf("productOffering") != -1) {
+                    for (int m = k; m < outputList.size(); m++) {
+                        String inLL = outputList.get(outputList.size() - 1 - m);
+                        if (inLL.indexOf("productNm") != -1) {
+                            String valueSt = outputList.get(outputList.size() - 1 - m + 1);
+                            valueSt = ServiceAFweb.replaceAll("\"", "", valueSt);
+                            valueSt = ServiceAFweb.replaceAll("value:", "", valueSt);
+                            valueSt = ServiceAFweb.replaceAll(" ", "_", valueSt);
+                            return valueSt;
+                        }
                     }
                 }
             }
+        } catch (Exception ex) {
+            logger.info("> checkProductOfferingProductNm " + ex.getMessage());
         }
         return "";
     }
@@ -1656,7 +1623,16 @@ public class SsnsService {
             long elapsedTime = endTime - startTime;
 //            System.out.println("Elapsed time in milli seconds: " + elapsedTime);
             if (inList != null) {
-                inList.add("elapsedTime:" + elapsedTime);
+                String tzid = "America/New_York"; //EDT
+                TimeZone tz = TimeZone.getTimeZone(tzid);
+                Date d = new Date(startTime);
+                // timezone symbol (z) included in the format pattern 
+                DateFormat format = new SimpleDateFormat("M/dd/yyyy hh:mm a z");
+                // format date in target timezone
+                format.setTimeZone(tz);
+                String ESTdate = format.format(d);
+
+                inList.add(ESTdate + " elapsedTime:" + elapsedTime);
                 inList.add("output:");
             }
             return output;
@@ -1673,8 +1649,8 @@ public class SsnsService {
                     + "&productType=" + productType;
             if (productType.equals(APP_FEAT_TYPE_TTV)) {
                 url += "&fields=product.characteristic.channelInfoList";
-            } else if (productType.equals(APP_FEATT_TYPE_SING)) {
-                url += "&fields=product.characteristic.voicemail";
+//            } else if (productType.equals(APP_FEATT_TYPE_SING)) {
+//                url += "&fields=product.characteristic.voicemail";
             }
         } else {
             url = ProductURL + "/v1/cmo/selfmgmt/productinventory/product/" + prodid + "?billingAccount.id=" + ban;
@@ -1698,7 +1674,16 @@ public class SsnsService {
             long elapsedTime = endTime - startTime;
 //            System.out.println("Elapsed time in milli seconds: " + elapsedTime);
             if (inList != null) {
-                inList.add("elapsedTime:" + elapsedTime);
+                String tzid = "America/New_York"; //EDT
+                TimeZone tz = TimeZone.getTimeZone(tzid);
+                Date d = new Date(startTime);
+                // timezone symbol (z) included in the format pattern 
+                DateFormat format = new SimpleDateFormat("M/dd/yyyy hh:mm a z");
+                // format date in target timezone
+                format.setTimeZone(tz);
+                String ESTdate = format.format(d);
+
+                inList.add(ESTdate + " elapsedTime:" + elapsedTime);
                 inList.add("output:");
             }
 

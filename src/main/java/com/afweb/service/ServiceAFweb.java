@@ -369,7 +369,6 @@ public class ServiceAFweb {
 // Window -> Debugging -> Breakpoints Select all, the delete
 //
 ///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////  
                     logger.info("> Debug end ");
                 }
@@ -414,6 +413,10 @@ public class ServiceAFweb {
             if ((getServerObj().getProcessTimerCnt() % 280) == 0) {
                 // 30 sec per tick ~ 5 hour   60 s*60 * 4/ 30 
             }
+            if ((getServerObj().getProcessTimerCnt() % 100) == 0) {
+                // 15 mintes
+
+            }
             if ((getServerObj().getProcessTimerCnt() % 20) == 0) {
                 ProcessAllLockCleanup();
             }
@@ -422,7 +425,6 @@ public class ServiceAFweb {
 
             } else if ((getServerObj().getProcessTimerCnt() % 11) == 0) {
 
-
             } else if ((getServerObj().getProcessTimerCnt() % 7) == 0) {
                 //////require to save memory
                 System.gc();
@@ -430,7 +432,14 @@ public class ServiceAFweb {
 
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
 
+
+                //// process monitor
+                SsnsRegression regression = new SsnsRegression();
+                regression.processMonitorTesting(this);
+
             } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
+                //10 Sec * 5 ~ 1 minutes
+
 
             } else if ((getServerObj().getProcessTimerCnt() % 2) == 0) {
 
@@ -544,6 +553,7 @@ public class ServiceAFweb {
         }
     }
 ////////////////////////////////
+
 
     public static String replaceAll(String oldStr, String newStr, String inString) {
         while (true) {
@@ -972,7 +982,7 @@ public class ServiceAFweb {
             }
             ret = regression.startMonitorRegression(this, name, app, urlSt);
             // clear old report
-            SsReportClearExceptLast2(name);
+            SsReportClearExceptLast3(name);
 
         } catch (Exception ex) {
         }
@@ -1022,7 +1032,7 @@ public class ServiceAFweb {
         return 1;
     }
 
-    public int getSsReportMonStart(String EmailUserName, String IDSt) {
+    public int getSsReportMonStart(String EmailUserName, String IDSt, String app) {
 
         if (getServerObj().isSysMaintenance() == true) {
             return 0;
@@ -1052,9 +1062,9 @@ public class ServiceAFweb {
             if (lockReturn == 0) {
                 return 0;
             }
-            ret = regression.startMonitor(this, name);
+            ret = regression.startMonitor(this, name, app);
             // clear old report
-            SsReportClearExceptLast2(name);
+            SsReportClearExceptLast3(name);
 
         } catch (Exception ex) {
         }
@@ -1079,12 +1089,12 @@ public class ServiceAFweb {
 
     }
 
-    public int SsReportClearExceptLast2(String name) {
+    public int SsReportClearExceptLast3(String name) {
 
         ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_REPORT);
         if (ssReportObjList != null) {
             for (int i = 0; i < ssReportObjList.size(); i++) {
-                if (i < 2) {
+                if (i < 3) {
                     continue;
                 }
                 SsReport repObj = ssReportObjList.get(i);
@@ -1097,7 +1107,7 @@ public class ServiceAFweb {
             ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_RESULT);
             if (ssReportObjList != null) {
                 for (int i = 0; i < ssReportObjList.size(); i++) {
-                    if (i < 2) {
+                    if (i < 3) {
                         continue;
                     }
                     SsReport repObj = ssReportObjList.get(i);
