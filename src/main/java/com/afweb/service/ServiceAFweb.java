@@ -369,7 +369,7 @@ public class ServiceAFweb {
 // Window -> Debugging -> Breakpoints Select all, the delete
 //
 ///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////  
+////////////////////////////////////////////////////////////////////////////////////  
                     logger.info("> Debug end ");
                 }
 
@@ -425,10 +425,12 @@ public class ServiceAFweb {
 
             } else if ((getServerObj().getProcessTimerCnt() % 11) == 0) {
 
+
             } else if ((getServerObj().getProcessTimerCnt() % 7) == 0) {
                 //////require to save memory
                 System.gc();
                 //////require to save memory
+
 
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
 
@@ -553,7 +555,6 @@ public class ServiceAFweb {
         }
     }
 ////////////////////////////////
-
 
     public static String replaceAll(String oldStr, String newStr, String inString) {
         while (true) {
@@ -1696,8 +1697,8 @@ public class ServiceAFweb {
 
                     String featTimeSlot = ss.TestFeatureSsnsProdApp(ssnsAccObj, outputList, SsnsService.APP_GET_TIMES, LABURL);
                     if ((ssnsAccObj.getBanid().length() != 0) && (ssnsAccObj.getCusid().length() != 0)) {
-                        outputList = new ArrayList();
-                        feat = ss.TestFeatureSsnsProdApp(ssnsAccObj, outputList, SsnsService.APP_GET_APP, LABURL);
+                        ArrayList<String> outputListTS = new ArrayList();  //ignore this output
+                        feat = ss.TestFeatureSsnsProdApp(ssnsAccObj, outputListTS, SsnsService.APP_GET_APP, LABURL);
                     } else {
                         feat = featTimeSlot;
                     }

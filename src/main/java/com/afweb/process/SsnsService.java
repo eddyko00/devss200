@@ -503,6 +503,114 @@ public class SsnsService {
         return featTTV;
     }
 
+    // 1 faulure, 0 = success
+    public int getSsnsFlowTraceWifiCallback(SsnsData dataObj, ArrayList<String> flow, String postParm) {
+        if (postParm == null) {
+            return 1;
+        }
+        if (postParm.length() == 1) {
+            return 1;
+        }
+        String newUid = "";
+
+        if (postParm.indexOf("asynchronousRequest") != -1) {
+            String[] operList = postParm.split(",");
+            for (int j = 0; j < operList.length; j++) {
+                String inLine = operList[j];
+                if (inLine.indexOf("operationId") != -1) {
+                    String valueSt = inLine;
+                    valueSt = ServiceAFweb.replaceAll("\"", "", valueSt);
+                    valueSt = ServiceAFweb.replaceAll("operationId:", "", valueSt);
+                    newUid = valueSt;
+                    break;
+                }
+            }
+        }
+
+        if (newUid.length() == 0) {
+            return 1;
+        }
+
+        String uid = newUid;
+
+        ArrayList<SsnsData> ssnsList = getSsnsDataImp().getSsnsDataObjListByUid(dataObj.getApp(), uid);
+        if (ssnsList != null) {
+//            logger.info("> ssnsList " + ssnsList.size());
+            for (int i = 0; i < ssnsList.size(); i++) {
+                SsnsData data = ssnsList.get(i);
+                String flowSt = data.getDown();
+                if (flowSt.length() == 0) {
+                    flowSt = data.getOper();
+                }
+                flowSt += ":" + data.getExec();
+                String dataTxt = data.getData();
+                if (dataTxt.indexOf("[tocpresp,") != -1) {
+                    try {
+                        String valueSt = ServiceAFweb.replaceAll("[tocpresp,{node:", "", dataTxt);
+                        valueSt = valueSt.substring(0, valueSt.length() - 2);
+                        String filteredStr = valueSt.replaceAll(" ", "");
+                        String[] filteredList = filteredStr.split("><");
+
+                        flow.add(postParm);
+                        for (int k = 0; k < filteredList.length; k++) {
+                            String ln = filteredList[k];
+                            if (k == 0) {
+                                ln = ln + ">";
+                            } else if (k == filteredList.length - 1) {
+                                ln = "<" + ln;
+                            } else {
+                                ln = "<" + ln + ">";
+                            }
+                            flow.add(ln);
+                        }
+                        return 0;
+
+                    } catch (Exception ex) {
+                        logger.info(ex.getMessage());
+                    }
+                }
+
+            }
+        }
+        return 1;
+
+//        if (dataObj.getOper().equals(WI_config)) {
+//            String dataSt = dataObj.getData();
+//            dataSt = ServiceAFweb.replaceAll("\"", "", dataSt);
+//            dataSt = ServiceAFweb.replaceAll("[", "", dataSt);
+//            dataSt = ServiceAFweb.replaceAll("]", "", dataSt);
+//            dataSt = ServiceAFweb.replaceAll("{", "", dataSt);
+//            dataSt = ServiceAFweb.replaceAll("}", "", dataSt);
+//            String[] dataList = dataSt.split(",");
+//            String callUid = "";
+//            for (int i = 0; i < dataList.length; i++) {
+//                String inLine = dataList[i];
+//                if (inLine.indexOf("operationId") != -1) {
+//                    String valueSt = inLine;
+//                    valueSt = ServiceAFweb.replaceAll("\"", "", valueSt);
+//                    valueSt = ServiceAFweb.replaceAll("operationId:", "", valueSt);
+//                    if (valueSt.length() >= 36) {
+//                        callUid = valueSt.substring(0, 36);  // overrid uuid for call back
+//                        break;
+//                    }
+//                }
+//            }
+//            if (callUid.length() > 0) {
+//                ssnsList = getSsnsDataImp().getSsnsDataObjListByUid(dataObj.getApp(), callUid);
+//                if (ssnsList != null) {
+//                    for (int i = 0; i < ssnsList.size(); i++) {
+//                        SsnsData data = ssnsList.get(i);
+//                        String flowSt = data.getDown();
+//                        if (flowSt.length() == 0) {
+//                            flowSt = data.getOper();
+//                        }
+//                        flowSt += ":" + data.getExec();
+//                        flowSt += ":" + data.getData();
+//                        flow.add(flowSt);
+//                    }
+//                }
+//            }
+    }
 
     public String SendSsnsTestURL(String ProductURL, ArrayList<String> inList) {
         String url = ProductURL;

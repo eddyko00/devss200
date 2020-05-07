@@ -18,6 +18,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -176,7 +177,9 @@ public class SsnsRegression {
                     }
                 }
             }
-
+            // make random list on testIdList 
+            Collections.shuffle( testIdList );  
+            
             String tzid = "America/New_York"; //EDT
             TimeZone tz = TimeZone.getTimeZone(tzid);
             Date d = new Date();
