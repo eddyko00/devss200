@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.logging.Level;
 
 import java.util.logging.Logger;
 import javax.sql.DataSource;
@@ -369,7 +368,8 @@ public class ServiceAFweb {
 // Window -> Debugging -> Breakpoints Select all, the delete
 //
 ///////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////  
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////  
                     logger.info("> Debug end ");
                 }
 
@@ -393,8 +393,7 @@ public class ServiceAFweb {
                 if (CKey.NN_DEBUG == true) {
                     if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
                         //10 Sec * 5 ~ 1 minutes
-//                        processETL();
-//                        return;
+
                     }
                 }
             }
@@ -415,10 +414,9 @@ public class ServiceAFweb {
             }
             if ((getServerObj().getProcessTimerCnt() % 100) == 0) {
                 // 15 mintes
-
             }
             if ((getServerObj().getProcessTimerCnt() % 20) == 0) {
-                ProcessAllLockCleanup();
+
             }
             if ((getServerObj().getProcessTimerCnt() % 13) == 0) {
 
@@ -433,15 +431,11 @@ public class ServiceAFweb {
 
 
             } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
-
-
                 //// process monitor
-                SsnsRegression regression = new SsnsRegression();
-                regression.processMonitorTesting(this);
 
             } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
                 //10 Sec * 5 ~ 1 minutes
-
+ 
 
             } else if ((getServerObj().getProcessTimerCnt() % 2) == 0) {
 
@@ -1092,7 +1086,7 @@ public class ServiceAFweb {
 
     public int SsReportClearExceptLast3(String name) {
 
-        ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_REPORT);
+        ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_REPORT, 0);
         if (ssReportObjList != null) {
             for (int i = 0; i < ssReportObjList.size(); i++) {
                 if (i < 3) {
@@ -1105,7 +1099,7 @@ public class ServiceAFweb {
                 getSsnsDataImp().DeleteSsReportObjByID(repObj.getId());  // delete report
             }
 
-            ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_RESULT);
+            ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_RESULT, 0);
             if (ssReportObjList != null) {
                 for (int i = 0; i < ssReportObjList.size(); i++) {
                     if (i < 3) {
@@ -1164,13 +1158,13 @@ public class ServiceAFweb {
         }
         String name = EmailUserName;
         ArrayList<SsReport> ssReportList = new ArrayList();
-        ArrayList<SsReport> ssUserReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_USER);
+        ArrayList<SsReport> ssUserReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_USER, 0);
         if (ssUserReportObjList == null) {
             return ssReportList;
         }
         ssReportList.addAll(ssUserReportObjList);
 
-        ArrayList<SsReport> ssResultReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_RESULT);
+        ArrayList<SsReport> ssResultReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_RESULT, 0);
         if (ssResultReportObjList != null) {
             ssReportList.addAll(ssResultReportObjList);
         }
@@ -1194,13 +1188,13 @@ public class ServiceAFweb {
         }
         String name = CKey.ADMIN_USERNAME;
         ArrayList<SsReport> ssReportList = new ArrayList();
-        ArrayList<SsReport> ssUserReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_USER);
+        ArrayList<SsReport> ssUserReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_USER, 0);
         if (ssUserReportObjList == null) {
             return ssReportList;
         }
         ssReportList.addAll(ssUserReportObjList);
 
-        ArrayList<SsReport> ssResultReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_RESULT);
+        ArrayList<SsReport> ssResultReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, SsnsRegression.REPORT_RESULT, 0);
         if (ssResultReportObjList != null) {
             ssReportList.addAll(ssResultReportObjList);
         }
@@ -1716,7 +1710,7 @@ public class ServiceAFweb {
                             feat += ":testfailed";
                         }
                         if ((ssnsAccObj.getBanid().length() != 0) && (ssnsAccObj.getCusid().length() != 0)) {
-                            String feature = outputList.get(0);
+                            String feature = feat;
                             feature += ":startdate";
                             outputList.remove(0);
                             outputList.add(0, feature);
@@ -2073,7 +2067,7 @@ public class ServiceAFweb {
         return 0;
     }
 
-    public int restoresSsnsAcc() {
+    public int systemRestoresSsnsAcc() {
         logger.info("restoreSsnsAccDB start");
         this.getSsnsDataImp().deleteAllSsnsAcc(0);
         boolean retSatus = getAccountImp().restoreSsnsAccDB(this);

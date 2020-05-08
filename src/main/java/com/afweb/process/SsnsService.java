@@ -283,7 +283,7 @@ public class SsnsService {
             } else if (oper.equals(TT_Vadulate)) {
                 url = ProductURL + "/v1/cmo/selfmgmt/tv/requisition/account/" + banid
                         + "/productinstance/" + prodid
-                        + "/quotation";
+                        + "/validation";
 
                 if (inList != null) {
                     inList.add(url);
@@ -372,6 +372,7 @@ public class SsnsService {
 
             String postParamSt = ProductDataHelper.getPostParamRestore(pData.getPostParam());
             outputSt = SendSsnsTTVC(LABURL, oper, banid, appTId, postParamSt, inList);
+            outList = ServiceAFweb.prettyPrintJSON(outputSt);
             outputList.addAll(inList);
             outputList.addAll(outList);
 
@@ -993,6 +994,8 @@ public class SsnsService {
                 String ESTdate = format.format(d);
 
                 inList.add(ESTdate + " elapsedTime:" + elapsedTime);
+                String bodyElement = new ObjectMapper().writeValueAsString(newbodymap);
+                inList.add("bodyElement:" + bodyElement);
                 inList.add("output:");
             }
 
@@ -1465,139 +1468,7 @@ public class SsnsService {
         return "";
     }
 
-    public boolean updateSsnsProdiuctInventoryByProdId(String oper, String banid, String prodid, ProductData pData, SsnsData dataObj, SsnsAcc NAccObj) {
-        try {
-
-            String featTTV = "";
-            String outputSt = null;
-
-            outputSt = SendSsnsProdiuctInventory(ServiceAFweb.URL_PRODUCT, banid, prodid, oper, null);
-            if (outputSt == null) {
-                return false;
-            }
-            if (outputSt.indexOf("responseCode:400500") != -1) {
-                return false;
-            }
-
-            if (oper.equals(APP_FEAT_TYPE_HSIC)) {
-                featTTV = parseProductInternetFeature(outputSt, dataObj.getOper());
-
-            } else if (oper.equals(APP_FEAT_TYPE_TTV)) {
-                featTTV = parseProductTtvFeature(outputSt, dataObj.getOper());
-
-            } else if (oper.equals(APP_FEATT_TYPE_SING)) {
-                featTTV = parseProductPhoneFeature(outputSt, dataObj.getOper());
-
-            }
-
-//            logger.info("> updateSsnsProdiuctInventory feat " + featTTV);
-/////////////TTV   
-            ArrayList<String> flow = new ArrayList();
-            int faulure = getSsnsFlowTrace(dataObj, flow);
-            if (flow == null) {
-                logger.info("> updateSsnsProdiuctInventory skip no flow");
-                return false;
-            }
-
-            pData.setFlow(flow);
-            pData.setFlow(flow);
-            if (faulure == 1) {
-                featTTV += ":failed";
-            }
-            logger.info("> updateSsnsProdiuctInventory feat " + featTTV);
-            NAccObj.setName(featTTV);
-            NAccObj.setBanid(banid);
-            NAccObj.setCusid(dataObj.getCusid());
-            NAccObj.setUid(dataObj.getUid());
-            NAccObj.setApp(dataObj.getApp());
-            NAccObj.setTiid(dataObj.getTiid());
-            NAccObj.setOper(dataObj.getOper());
-
-            NAccObj.setDown(NAccObj.getDown());
-            NAccObj.setRet(NAccObj.getRet());
-
-            NAccObj.setExec(dataObj.getExec());
-
-            String nameSt = new ObjectMapper().writeValueAsString(pData);
-            NAccObj.setData(nameSt);
-
-            NAccObj.setUpdatedatel(dataObj.getUpdatedatel());
-            NAccObj.setUpdatedatedisplay(new java.sql.Date(dataObj.getUpdatedatel()));
-
-            return true;
-        } catch (Exception ex) {
-            logger.info("> updateSsnsProdiuctInventory Exception " + ex.getMessage());
-        }
-        return false;
-    }
-
-    public boolean updateSsnsProdiuctInventory(String oper, String banid, String prodid, ProductData pData, SsnsData dataObj, SsnsAcc NAccObj) {
-        try {
-
-            String outputSt = null;
-
-            outputSt = SendSsnsProdiuctInventory(ServiceAFweb.URL_PRODUCT, banid, prodid, oper, null);
-            if (outputSt == null) {
-                return false;
-            }
-            if (outputSt.indexOf("responseCode:400500") != -1) {
-                return false;
-            }
-            String feat = "";
-            if (oper.equals(SsnsService.APP_FEAT_TYPE_HSIC)) {
-                feat = parseProductInternetFeature(outputSt, dataObj.getOper());
-
-            } else if (oper.equals(SsnsService.APP_FEAT_TYPE_TTV)) {
-                feat = parseProductTtvFeature(outputSt, dataObj.getOper());
-
-            } else if (oper.equals(SsnsService.APP_FEATT_TYPE_SING)) {
-                feat = parseProductPhoneFeature(outputSt, dataObj.getOper());
-            }
-
-            if (feat == null) {
-                return false;
-            }
-
-//            logger.info("> updateSsnsProdiuctInventory feat " + featTTV);
-/////////////TTV  
-            ArrayList<String> flow = new ArrayList();
-            int faulure = getSsnsFlowTrace(dataObj, flow);
-            if (flow == null) {
-                logger.info("> updateSsnsProdiuctInventory skip no flow");
-                return false;
-            }
-
-            pData.setFlow(flow);
-
-            if (faulure == 1) {
-                feat += ":failed";
-            }
-            logger.info("> updateSsnsProdiuctInventory feat " + feat);
-            NAccObj.setName(feat);
-            NAccObj.setBanid(banid);
-            NAccObj.setCusid(dataObj.getCusid());
-            NAccObj.setUid(dataObj.getUid());
-            NAccObj.setApp(dataObj.getApp());
-            NAccObj.setTiid(dataObj.getTiid());
-            NAccObj.setOper(dataObj.getOper());
-
-            NAccObj.setDown(NAccObj.getDown());
-            NAccObj.setRet(NAccObj.getRet());
-
-            NAccObj.setExec(dataObj.getExec());
-
-            String nameSt = new ObjectMapper().writeValueAsString(pData);
-            NAccObj.setData(nameSt);
-
-            NAccObj.setUpdatedatel(dataObj.getUpdatedatel());
-            NAccObj.setUpdatedatedisplay(new java.sql.Date(dataObj.getUpdatedatel()));
-
-            return true;
-        } catch (Exception ex) {
-            logger.info("> updateSsnsProdiuctInventory Exception " + ex.getMessage());
-        }
-        return false;
-    }
+ 
 
     public static String parseProductTtvFeature(String outputSt, String oper) {
 

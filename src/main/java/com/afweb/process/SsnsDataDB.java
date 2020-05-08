@@ -1131,14 +1131,14 @@ public class SsnsDataDB {
         return entries;
     }
 
-    public ArrayList<SsReport> getSsReportObjListByUidDesc(String name, String uid) {
+    public ArrayList<SsReport> getSsReportObjListByUidDesc(String name, String uid, int length) {
         String sql = "select * from ssreport where name='" + name + "' and uid='" + uid + "'";
         if ((name == null) || (name.length() == 0)) {
             sql = "select * from ssreport where uid='" + uid + "' ";
         }
         sql += " order by updatedatel desc";
 
-        ArrayList entries = getAllSsReportSQL(sql, 0);
+        ArrayList entries = getAllSsReportSQL(sql, length);
         return entries;
     }
 

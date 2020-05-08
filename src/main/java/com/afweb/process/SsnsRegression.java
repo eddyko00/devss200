@@ -64,7 +64,7 @@ public class SsnsRegression {
 
             //check if outstanding testing
             SsReport userReportObj = null;
-            ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, REPORT_USER);
+            ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, REPORT_USER, 1);
             if (ssReportObjList != null) {
                 if (ssReportObjList.size() > 0) {
                     userReportObj = ssReportObjList.get(0);
@@ -99,7 +99,7 @@ public class SsnsRegression {
 
             //check if outstanding testing
             SsReport userReportObj = null;
-            ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, REPORT_USER);
+            ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, REPORT_USER, 1);
             if (ssReportObjList != null) {
                 if (ssReportObjList.size() > 0) {
                     userReportObj = ssReportObjList.get(0);
@@ -178,8 +178,8 @@ public class SsnsRegression {
                 }
             }
             // make random list on testIdList 
-            Collections.shuffle( testIdList );  
-            
+            Collections.shuffle(testIdList);
+
             String tzid = "America/New_York"; //EDT
             TimeZone tz = TimeZone.getTimeZone(tzid);
             Date d = new Date();
@@ -320,7 +320,7 @@ public class SsnsRegression {
             String uid = REPORT_REPORT;
 
             Set<String> set = new HashSet<>();
-            ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, uid);
+            ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, uid, 0);
             if (ssReportObjList != null) {
                 for (int i = 0; i < ssReportObjList.size(); i++) {
                     SsReport reportObj = ssReportObjList.get(i);
@@ -388,7 +388,7 @@ public class SsnsRegression {
 //
             SsReport reportReportObj = null;
             String uid = REPORT_REPORT;
-            ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, uid);
+            ArrayList<SsReport> ssReportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, uid, 1);
             if (ssReportObjList != null) {
                 if (ssReportObjList.size() > 0) {
                     reportReportObj = ssReportObjList.get(0);
@@ -421,7 +421,7 @@ public class SsnsRegression {
                 long lockDate1Min = TimeConvertion.addMinutes(currentTime, 1);
 
                 SsReport userReportObj = null;
-                ArrayList<SsReport> ssReportUserObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, REPORT_USER);
+                ArrayList<SsReport> ssReportUserObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, REPORT_USER, 1);
                 if (ssReportUserObjList != null) {
                     if (ssReportUserObjList.size() > 0) {
                         userReportObj = ssReportUserObjList.get(0);
@@ -779,7 +779,7 @@ public class SsnsRegression {
         // report
         try {
             String uid = REPORT_REPORT;
-            ArrayList<SsReport> reportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, uid);
+            ArrayList<SsReport> reportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, uid, 1);
 
             if (reportObjList == null) {
                 return;
@@ -803,7 +803,7 @@ public class SsnsRegression {
             logger.info("> reportList  " + testRList.size());
 
             uid = REPORT_RESULT;
-            reportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, uid);
+            reportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, uid, 1);
 
             if (reportObjList == null) {
                 return;
@@ -852,7 +852,7 @@ public class SsnsRegression {
 ////////////////
 /////////// put back to the main user
             uid = REPORT_USER;
-            reportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, uid);
+            reportObjList = getSsnsDataImp().getSsReportObjListByUidDesc(name, uid, 1);
 
             if (reportObjList == null) {
                 return;

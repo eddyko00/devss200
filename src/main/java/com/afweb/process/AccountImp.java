@@ -538,7 +538,11 @@ public class AccountImp {
         return true;
 
     }
+    public boolean restoreSsReportDB(ServiceAFweb serviceAFWeb) {
+        restoreDBSsnsDataAcc(serviceAFWeb, "ssreport");
+        return true;
 
+    }
     public boolean restoreDBData(ServiceAFweb serviceAFWeb) {
 
         if (FileUtil.FileTest(ServiceAFweb.FileLocalPath + "cust.txt") == false) {
