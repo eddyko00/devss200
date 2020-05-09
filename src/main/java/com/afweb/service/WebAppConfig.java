@@ -24,7 +24,7 @@ public class WebAppConfig {
                 dataSource.setUsername("postgres");
                 dataSource.setPassword("admin");
             }
-            ServiceAFweb.URL_LOCALDB = dataSource.getUrl();
+            ServiceAFweb.URL_LOCAL_DB = dataSource.getUrl();
 
         }
         if (CKey.SQL_DATABASE == CKey.MYSQL) {
@@ -53,10 +53,10 @@ public class WebAppConfig {
             dataSource.setUsername("sa");
             dataSource.setPassword("admin");
 
-            if (ServiceAFweb.URL_LOCALDB.length() == 0) {
-                ServiceAFweb.URL_LOCALDB = dataSource.getUrl();
+            if (ServiceAFweb.URL_LOCAL_DB.length() == 0) {
+                ServiceAFweb.URL_LOCAL_DB = dataSource.getUrl();
             } else {
-                 dataSource.setUrl(ServiceAFweb.URL_LOCALDB);
+                 dataSource.setUrl(ServiceAFweb.URL_LOCAL_DB);
             }
         }
 
