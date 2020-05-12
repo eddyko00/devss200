@@ -302,28 +302,28 @@ public class ServiceAFweb {
         if (CKey.LocalPCflag == true) {
             getServerObj().setSysMaintenance(true);
             serverObj.setTimerInit(true);
-            if (CKey.NN_DEBUG == true) {
-                // LocalPCflag = true; 
-                // SQL_DATABASE = REMOTE_MYSQL;
-                if (CKey.SQL_DATABASE == CKey.REMOTE_MYSQL) {
-                    logger.info(">>>>> SystemDownloadDBData form Openshift");
+//            if (CKey.NN_DEBUG == true) {
+            // LocalPCflag = true; 
+            // SQL_DATABASE = REMOTE_MYSQL;
+            if (CKey.SQL_DATABASE == CKey.REMOTE_MYSQL) {
+                logger.info(">>>>> SystemDownloadDBData form Openshift");
 
-                } else if (CKey.SQL_DATABASE == CKey.LOCAL_MYSQL) {
-                    logger.info(">>>>> SystemDownloadDBData form local My SQL");
-                }
-
-                serverObj.setSysMaintenance(true);
-                boolean retSatus = getAccountImp().downloadDBData(this);
-                if (retSatus == true) {
-                    serverObj.setSysMaintenance(true);
-                    serverObj.setTimerInit(false);
-                    serverObj.setTimerQueueCnt(0);
-                    serverObj.setTimerCnt(0);
-                }
-                getServerObj().setSysMaintenance(true);
-                logger.info(">>>>> SystemDownloadDBData done");
+            } else if (CKey.SQL_DATABASE == CKey.LOCAL_MYSQL) {
+                logger.info(">>>>> SystemDownloadDBData form local My SQL");
             }
+
+            serverObj.setSysMaintenance(true);
+            boolean retSatus = getAccountImp().downloadDBData(this);
+            if (retSatus == true) {
+                serverObj.setSysMaintenance(true);
+                serverObj.setTimerInit(false);
+                serverObj.setTimerQueueCnt(0);
+                serverObj.setTimerCnt(0);
+            }
+            getServerObj().setSysMaintenance(true);
+            logger.info(">>>>> SystemDownloadDBData done");
         }
+//        }
     }
 
     private void restoreSystem() {
@@ -394,7 +394,6 @@ public class ServiceAFweb {
                 if (CKey.NN_DEBUG == true) {
                     if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
                         //10 Sec * 5 ~ 1 minutes
-
                     }
                 }
             }
@@ -424,16 +423,16 @@ public class ServiceAFweb {
 
 
             } else if ((getServerObj().getProcessTimerCnt() % 11) == 0) {
-
+  
 
             } else if ((getServerObj().getProcessTimerCnt() % 7) == 0) {
                 //////require to save memory
                 System.gc();
                 //////require to save memory
 
-            } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
-                //// process monitor
+            } else if ((getServerObj().getProcessTimerCnt() % 6) == 0) {
 
+            } else if ((getServerObj().getProcessTimerCnt() % 5) == 0) {
 
             } else if ((getServerObj().getProcessTimerCnt() % 3) == 0) {
                 //10 Sec * 5 ~ 1 minutes
@@ -549,7 +548,7 @@ public class ServiceAFweb {
 //            output.add("  ");
         }
     }
-////////////////////////////////
+
 
 
     public static String replaceAll(String oldStr, String newStr, String inString) {
@@ -1227,7 +1226,9 @@ public class ServiceAFweb {
         ssnsList.add(SsnsService.APP_TTVC);
         ssnsList.add("SSNS TTV Service");
         ssnsList.add(SsnsService.APP_WLNPRO);
-        ssnsList.add("SSNS TTV WLN Protection");
+        ssnsList.add("SSNS WLN Protection");
+        ssnsList.add(SsnsService.APP_QUAL);
+        ssnsList.add("SSNS Qualfiication");
         return ssnsList;
 
     }
@@ -1475,6 +1476,53 @@ public class ServiceAFweb {
         return null;
     }
 
+    public ArrayList<String> testSsnsprodQualByIdRT(String EmailUserName, String IDSt, String PIDSt, String prod, String Oper, String LABURL) {
+        if (getServerObj().isSysMaintenance() == true) {
+            return null;
+        }
+        CustomerObj custObj = getAccountImp().getCustomerPassword(EmailUserName, null);
+        if (custObj == null) {
+            return null;
+        }
+        if (IDSt != null) {
+            if (IDSt.equals(custObj.getId() + "") != true) {
+                return null;
+            }
+        }
+        ArrayList<SsnsAcc> ssnsAccObjList = getSsnsDataImp().getSsnsAccObjListByID(prod, PIDSt);
+        if (ssnsAccObjList != null) {
+            if (ssnsAccObjList.size() > 0) {
+                SsnsAcc ssnsAccObj = (SsnsAcc) ssnsAccObjList.get(0);
+                ArrayList<String> outputList = new ArrayList();
+                SsnsService ss = new SsnsService();
+                String feat = "";
+                if (Oper.equals(QUAL_AVAL)) {
+                    feat = ss.TestFeatureSsnsProdQual(ssnsAccObj, outputList, Oper, LABURL);
+//                    logger.info("> testSsnsprodTTVCByIdRT " + Oper + " feat " + feat);
+                    if (((feat == null) || (feat.length() == 0)) || (feat.indexOf(":testfailed") != -1)) {
+                        // disabled this Acc Obj
+                        int type = ssnsAccObj.getType();
+                        String name = ssnsAccObj.getName();
+                        int status = ssnsAccObj.getStatus();
+                        type = type + 1; // increate error count
+
+                        this.getSsnsDataImp().updatSsnsAccNameStatusTypeById(ssnsAccObj.getId(), name, status, type);
+                    } else {
+                        String name = ssnsAccObj.getName();
+                        int type = ssnsAccObj.getType();
+                        int status = ssnsAccObj.getStatus();
+                        if (type > 0) {
+                            type = 0; // increate error count
+                            this.getSsnsDataImp().updatSsnsAccNameStatusTypeById(ssnsAccObj.getId(), name, status, type);
+                        }
+                    }
+                }
+                return outputList;
+            }
+        }
+        return null;
+    }
+        
     public ArrayList<String> testSsnsprodWLNPROByIdRT(String EmailUserName, String IDSt, String PIDSt, String prod, String Oper, String LABURL) {
         if (getServerObj().isSysMaintenance() == true) {
             return null;
@@ -1578,6 +1626,8 @@ public class ServiceAFweb {
             return this.testSsnsprodWifiByIdRT(EmailUserName, IDSt, PIDSt, prod, Oper, LABURL);
         } else if (prod.equals(SsnsService.APP_PRODUCT)) {
             return testSsnsprodByIdRT(EmailUserName, IDSt, PIDSt, prod, Oper, LABURL);
+        } else if (prod.equals(SsnsService.APP_WLNPRO)) {
+            return testSsnsprodWLNPROByIdRT(EmailUserName, IDSt, PIDSt, prod, Oper, LABURL);
         }
         return null;
     }
@@ -2115,6 +2165,13 @@ public class ServiceAFweb {
         } catch (Exception e) {
         }
         return 0;
+    }
+
+    public int systemBackupSsnsAcc() {
+        logger.info("systemBackupSsnsAcc start");
+        backupSystem();
+        logger.info("systemBackupSsnsAcc end");
+        return 1;
     }
 
     public int systemRestoresSsnsAcc() {

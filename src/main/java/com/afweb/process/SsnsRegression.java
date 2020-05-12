@@ -153,6 +153,22 @@ public class SsnsRegression {
                                     }
                                 }
                             }
+                            if (accObj.getApp().equals(SsnsService.APP_TTVC)) {
+                                String oper = accObj.getOper();
+                                if (oper.equals(SsnsService.TT_SaveOrder)) {
+                                    ;
+                                } else {
+                                    continue;
+                                }
+                            }
+
+                            if (accObj.getApp().equals(SsnsService.APP_WIFI)) {
+                                String nameFeat = accObj.getName();
+                                if (nameFeat.indexOf("NotaBan") != -1) {
+                                    continue;
+                                }
+                            }
+
                             testData tObj = new testData();
                             tObj.setAccid(accObj.getId());
                             tObj.setUsername(name);
@@ -161,6 +177,12 @@ public class SsnsRegression {
                             st = st.replace('"', '^');
                             testIdList.add(st);
                             added++;
+
+                            if (accObj.getApp().equals(SsnsService.APP_WLNPRO)) {
+                                // add double test becuase the TC is too low
+                                testIdList.add(st);
+                                added++;
+                            }
 ////////////////////////////////////////////////
                             if (added > exitTest) {
                                 break;
@@ -578,18 +600,24 @@ public class SsnsRegression {
                             totalTC++;
                             if (response != null) {
                                 if (response.size() > 3) {
-                                    String feat = response.get(0);
-                                    String execSt = response.get(2);
+                                    response.add(0, accObj.getName());
+                                    String feat = response.get(1);
+                                    String execSt = response.get(3);
 //                                    execSt = ServiceAFweb.replaceAll("elapsedTime:", "", execSt);
                                     int index = execSt.indexOf("elapsedTime:");
                                     if (index != -1) {
                                         execSt = execSt.substring(index + 12);
                                         exec = Long.parseLong(execSt);
                                     }
+
                                     if (feat.equals(accObj.getName())) {
                                         passSt = R_PASS;
+
                                     } else {
                                         passSt = R_PASS;
+                                        if (feat.indexOf("testfailed") != -1) {
+                                            passSt = R_FAIL;
+                                        }
                                         String[] featL = feat.split(":");
                                         String[] nameL = accObj.getName().split(":");
                                         if ((featL.length > 4) && (nameL.length > 4)) {
@@ -800,6 +828,8 @@ public class SsnsRegression {
             this.getReportStat(serviceAFweb, nameRepId, SsnsService.APP_WIFI, testRList, overviewList);
             this.getReportStat(serviceAFweb, nameRepId, SsnsService.APP_APP, testRList, overviewList);
             this.getReportStat(serviceAFweb, nameRepId, SsnsService.APP_TTVC, testRList, overviewList);
+            this.getReportStat(serviceAFweb, nameRepId, SsnsService.APP_WLNPRO, testRList, overviewList);
+            this.getReportStat(serviceAFweb, nameRepId, SsnsService.APP_QUAL, testRList, overviewList);            
             logger.info("> reportList  " + testRList.size());
 
             uid = REPORT_RESULT;

@@ -55,33 +55,38 @@ public class SsnsService {
     public static String APP_PRODUCT = "prod";
     public static String APP_TTVC = "ttv";
     public static String APP_WLNPRO = "wlnpro";
+    public static String APP_QUAL = "qual";
 
     public static String APP_TTVSUB = "ttvsub";  // ETL name
     public static String APP_TTVREQ = "ttvreq";  // ETL name
     //
-    public static String APP_GET_DOWNURL = "downloadurl";
     public static String APP_FEAT_TYPE_WLNP = "WLNP";
+    public static String APP_GET_DOWNURL = "downloadurl";
 
     public static String APP_FEAT_TYPE_TTV = "TTV";
     public static String APP_FEAT_TYPE_HSIC = "HSIC";
     public static String APP_FEATT_TYPE_SING = "SING";
-    public static String APP_FEAT_TYPE_APP = "APP";
-    public static String APP_FEAT_TYPE_WIFI = "WIFI";
-    public static String APP_FEAT_TYPE_TTVCL = "TTVCL";
+    public static String PROD_GET_PROD = "getProductList";
+    public static String PROD_GET_BYID = "getProductById";
 
+    public static String APP_FEAT_TYPE_APP = "APP";
     public static String APP_GET_APP = "getAppointment";
     public static String APP_CAN_APP = "cancelAppointment";
     public static String APP_GET_TIMES = "searchTimeSlot";
     public static String APP_UPDATE = "updateAppointment";
 
-    public static String PROD_GET_PROD = "getProductList";
-    public static String PROD_GET_BYID = "getProductById";
-
+    public static String APP_FEAT_TYPE_WIFI = "WIFI";
     public static String WI_GetDeviceStatus = "getDeviceStatus";
     public static String WI_Callback = "callbackNotification";
     public static String WI_GetDevice = "getDevices";
     public static String WI_config = "configureDeviceStatus";
 
+    public static String APP_FEAT_TYPE_QUAL = "QUAL";
+    public static String QUAL_AVAL = "availability";
+    public static String QUAL_MATCH = "address_matches";
+//
+
+    public static String APP_FEAT_TYPE_TTVCL = "TTVCL";
     public static String TT_GetSub = "getCustomerTvSubscription";
     public static String TT_Vadulate = "validateWithAuth";
     public static String TT_Quote = "quotewithauth";
@@ -89,7 +94,158 @@ public class SsnsService {
 
     private SsnsDataImp ssnsDataImp = new SsnsDataImp();
 
+////////////////////////////////////////////
+
+    public static String parseQualFeature(String outputSt, String oper) {
+
+        if (outputSt == null) {
+            return null;
+        }
+
+        int serviceCategoryCd = 0;
+        int qualStatusCdQUA = 0;
+        int qualStatusCdDQN = 0;
+        String FSAStatusCd = "";
+        String dropPlacedInd = "";
+
+        ArrayList<String> outputList = ServiceAFweb.prettyPrintJSON(outputSt);
+        for (int j = 0; j < outputList.size(); j++) {
+            String inLine = outputList.get(j);
+//            logger.info("" + inLine);
+
+            if (inLine.indexOf("serviceCategoryCd") != -1) {
+                serviceCategoryCd++;
+                continue;
+            }
+            if (inLine.indexOf("qualStatusCd") != -1) {
+                if (inLine.indexOf("QUA") != -1) {
+                    qualStatusCdQUA++;
+                }
+                if (inLine.indexOf("DQN") != -1) {
+                    qualStatusCdDQN++;
+                }
+                continue;
+            }
+            if (inLine.indexOf("FSAStatusCd") != -1) {
+
+                String valueSt = inLine;
+                valueSt = ServiceAFweb.replaceAll("\"", "", valueSt);
+                valueSt = ServiceAFweb.replaceAll("FSAStatusCd:", "", valueSt);
+                valueSt = ServiceAFweb.replaceAll(",", "", valueSt);
+                FSAStatusCd = valueSt;
+                continue;
+            }
+            if (inLine.indexOf("dropPlacedInd") != -1) {
+                String valueSt = inLine;
+                valueSt = ServiceAFweb.replaceAll("\"", "", valueSt);
+                valueSt = ServiceAFweb.replaceAll("dropPlacedInd:", "", valueSt);
+                valueSt = ServiceAFweb.replaceAll(",", "", valueSt);
+                dropPlacedInd = valueSt;
+                continue;
+            }
+        }
+        if (serviceCategoryCd == 0) {
+            logger.info("> serviceCategoryCd=0 for multiple address found");
+            return  null;
+        }
+        String featTTV = APP_FEAT_TYPE_QUAL;
+        featTTV += ":" + oper;
+        featTTV += ":serviceCat_" + serviceCategoryCd;
+        featTTV += ":QUA_" + qualStatusCdQUA;
+        featTTV += ":DQN_" + qualStatusCdDQN;
+        featTTV += ":FSASt_" + FSAStatusCd;
+        featTTV += ":drop_" + dropPlacedInd;
+        return featTTV;
+    }
+
+    public String SendSsnsQual(String ProductURL, String oper, String address, ArrayList<String> inList) {
+        String url = "";
+
+        if (oper.equals(QUAL_AVAL)) {
+            address = ServiceAFweb.replaceAll(" ", "%20", address);
+            url = ProductURL + "/v1/cmo/selfmgmt/service-qualification/availability?address=" + address;
+
+        } else {
+            return "";
+        }
+        try {
+            if (inList != null) {
+                inList.add(url);
+            }
+            // calculate elapsed time in milli seconds
+            long startTime = TimeConvertion.currentTimeMillis();
+
+            String output = this.sendRequest_Ssns(METHOD_GET, url, null, null, null);
+
+            long endTime = TimeConvertion.currentTimeMillis();
+            long elapsedTime = endTime - startTime;
+//            System.out.println("Elapsed time in milli seconds: " + elapsedTime);
+            if (inList != null) {
+                String tzid = "America/New_York"; //EDT
+                TimeZone tz = TimeZone.getTimeZone(tzid);
+                Date d = new Date(startTime);
+                // timezone symbol (z) included in the format pattern 
+                DateFormat format = new SimpleDateFormat("M/dd/yyyy hh:mm a z");
+                // format date in target timezone
+                format.setTimeZone(tz);
+                String ESTdate = format.format(d);
+
+                inList.add(ESTdate + " elapsedTime:" + elapsedTime);
+                inList.add("output:");
+            }
+
+            return output;
+        } catch (Exception ex) {
+            logger.info("> SendSsnsQual exception " + ex.getMessage());
+        }
+        return null;
+    }
+
+    public String TestFeatureSsnsProdQual(SsnsAcc dataObj, ArrayList<String> outputList, String Oper, String LABURL) {
+        if (dataObj == null) {
+            return "";
+        }
+        if (LABURL.length() == 0) {
+            LABURL = ServiceAFweb.URL_PRODUCT_PR;
+        }
+        dataObj.getData();
+
+        String address = dataObj.getTiid();
+        if (address.length() == 0) {
+            return "";
+        }
+
+        String outputSt = null;
+
+        ArrayList<String> inList = new ArrayList();
+        if (Oper.equals(QUAL_AVAL)) {
+            outputSt = SendSsnsQual(LABURL, Oper, address, inList);
+            if (outputSt == null) {
+                return "";
+            }
+            ////special char #, need to ignore for this system
+            outputSt = outputSt.replaceAll("#", "");
+            outputSt = outputSt.replaceAll("~", "");
+            outputSt = outputSt.replaceAll("^", "");
+
+            ArrayList<String> outList = ServiceAFweb.prettyPrintJSON(outputSt);
+            String feat = parseQualFeature(outputSt, Oper);
+            if (outputSt.indexOf("responseCode:400500") != -1) {
+                feat += ":testfailed";
+            }
+
+            outputList.add(feat);
+            outputList.addAll(inList);
+            outputList.addAll(outList);
+
+            return feat;
+        }
+
+        return "";
+    }
+
 ////////////////////////////////////////////    
+///////////////////////////////////////////    
 
     public static String parseWLNProFeature(String outputSt, String oper, String bundleName) {
 
@@ -206,6 +362,7 @@ public class SsnsService {
         String WifiparL[] = appTId.split(":");
         String serviceType = WifiparL[1];
         String skuP = WifiparL[2];
+        String bundleName = WifiparL[3];
 
         if (LABURL.length() == 0) {
             LABURL = ServiceAFweb.URL_PRODUCT_PR;
@@ -225,7 +382,7 @@ public class SsnsService {
             outputSt = outputSt.replaceAll("^", "");
 
             ArrayList<String> outList = ServiceAFweb.prettyPrintJSON(outputSt);
-            String feat = parseWLNProFeature(outputSt, oper, null);
+            String feat = parseWLNProFeature(outputSt, oper, bundleName);
 
             if (outputSt.indexOf("responseCode:400500") != -1) {
                 feat += ":testfailed";
@@ -240,7 +397,6 @@ public class SsnsService {
         return "";
     }
 
-////////////////////////////////////////////    
 
     public static String parseTTVCFeature(String outputSt, String oper, String postParm) {
 
@@ -407,7 +563,8 @@ public class SsnsService {
                 String st = ServiceAFweb.replaceAll("\":\",", "\":\"\",", postParm);
                 st = st.substring(0, st.length() - 2);
 
-                Map<String, String> map = new ObjectMapper().readValue(st, Map.class);
+                Map<String, String> map = new ObjectMapper().readValue(st, Map.class
+                );
                 map.remove("customerEmail");
 
                 String output = this.sendRequest_Ssns(METHOD_POST, url, null, map, null);
@@ -447,7 +604,8 @@ public class SsnsService {
                 String st = ServiceAFweb.replaceAll("\":\",", "\":\"\",", postParm);
                 st = st.substring(0, st.length() - 2);
 
-                Map<String, String> map = new ObjectMapper().readValue(st, Map.class);
+                Map<String, String> map = new ObjectMapper().readValue(st, Map.class
+                );
                 map.remove("customerEmail");
 
                 String output = this.sendRequest_Ssns(METHOD_POST, url, null, map, null);
@@ -511,12 +669,14 @@ public class SsnsService {
             if (outputSt.indexOf("responseCode:400500") != -1) {
                 feat += ":testfailed";
             }
-            outputList.add(feat);
 
+            outputList.add(feat);
             ProductData pData = null;
             String output = dataObj.getData();
+
             try {
-                pData = new ObjectMapper().readValue(output, ProductData.class);
+                pData = new ObjectMapper().readValue(output, ProductData.class
+                );
             } catch (IOException ex) {
             }
             if (pData == null) {
@@ -526,7 +686,13 @@ public class SsnsService {
 
             String postParamSt = ProductDataHelper.getPostParamRestore(pData.getPostParam());
             outputSt = SendSsnsTTVC(LABURL, oper, banid, appTId, postParamSt, inList);
+            if (outputSt.indexOf("responseCode:400500") != -1) {
+                feat += ":testfailed";
+                outputList.remove(0);
+                outputList.add(0, feat);
+            }
             outList = ServiceAFweb.prettyPrintJSON(outputSt);
+
             outputList.addAll(inList);
             outputList.addAll(outList);
 
@@ -1088,8 +1254,10 @@ public class SsnsService {
             }
             if (output.indexOf("responseCode:400500") != -1) {
                 return "";
+
             }
-            ArrayList arrayItem = new ObjectMapper().readValue(output, ArrayList.class);
+            ArrayList arrayItem = new ObjectMapper().readValue(output, ArrayList.class
+            );
             if (arrayItem.size() < 1) {
                 return "";
             }
