@@ -111,6 +111,9 @@ public class SsnsRegression {
             }
             int exitTest = 800;  // 1000000;
 
+            int qualCnt = 0;
+            int wlnProCnt = 0;
+
             int added = 0;
             ReportData reportdata = new ReportData();
             ArrayList<String> servList = serviceAFweb.getSsnsprodAll(name, null, 0);
@@ -182,6 +185,14 @@ public class SsnsRegression {
                                 // add double test becuase the TC is too low
                                 testIdList.add(st);
                                 added++;
+                                wlnProCnt += 2;
+
+                            }
+                            if (accObj.getApp().equals(SsnsService.APP_QUAL)) {
+                                testIdList.add(st);
+                                added++;
+                                qualCnt += 2;
+
                             }
 ////////////////////////////////////////////////
                             if (added > exitTest) {
@@ -199,6 +210,7 @@ public class SsnsRegression {
                     }
                 }
             }
+            logger.info("> startMonitor " + name + " wlnProCnt:" + wlnProCnt + " qualCnt:" + qualCnt);
             // make random list on testIdList 
             Collections.shuffle(testIdList);
 
@@ -598,9 +610,13 @@ public class SsnsRegression {
 
                             response = serviceAFweb.testSsnsprodPRocessByIdRT(CKey.ADMIN_USERNAME, null, accObj.getId() + "", accObj.getApp(), oper, LABURL);
                             totalTC++;
+                            String featName=  accObj.getName();
                             if (response != null) {
+                                if (oper.equals(SsnsService.PROD_GET_CC)) {
+                                    featName = accObj.getRet();
+                                }
                                 if (response.size() > 3) {
-                                    response.add(0, accObj.getName());
+                                    response.add(0, featName);
                                     String feat = response.get(1);
                                     String execSt = response.get(3);
 //                                    execSt = ServiceAFweb.replaceAll("elapsedTime:", "", execSt);
@@ -610,7 +626,7 @@ public class SsnsRegression {
                                         exec = Long.parseLong(execSt);
                                     }
 
-                                    if (feat.equals(accObj.getName())) {
+                                    if (feat.equals(featName)) {
                                         passSt = R_PASS;
 
                                     } else {
@@ -619,7 +635,7 @@ public class SsnsRegression {
                                             passSt = R_FAIL;
                                         }
                                         String[] featL = feat.split(":");
-                                        String[] nameL = accObj.getName().split(":");
+                                        String[] nameL = featName.split(":");
                                         if ((featL.length > 4) && (nameL.length > 4)) {
                                             if (!featL[2].equals(nameL[2])) {
                                                 passSt = R_FAIL;
@@ -641,7 +657,7 @@ public class SsnsRegression {
                                     }
                                 }
                             }
-                            passSt = accObj.getName() + ":" + passSt;
+                            passSt = featName + ":" + passSt;
                         } else {
                             //regression testing///
                             //regression testing///
@@ -829,7 +845,7 @@ public class SsnsRegression {
             this.getReportStat(serviceAFweb, nameRepId, SsnsService.APP_APP, testRList, overviewList);
             this.getReportStat(serviceAFweb, nameRepId, SsnsService.APP_TTVC, testRList, overviewList);
             this.getReportStat(serviceAFweb, nameRepId, SsnsService.APP_WLNPRO, testRList, overviewList);
-            this.getReportStat(serviceAFweb, nameRepId, SsnsService.APP_QUAL, testRList, overviewList);            
+            this.getReportStat(serviceAFweb, nameRepId, SsnsService.APP_QUAL, testRList, overviewList);
             logger.info("> reportList  " + testRList.size());
 
             uid = REPORT_RESULT;

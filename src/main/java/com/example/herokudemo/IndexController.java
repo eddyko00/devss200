@@ -71,6 +71,7 @@ public class IndexController {
         arrayString.add("/cust/{username}/id/{id}/serv/prod/summary?length={0 for all}");
         arrayString.add("/cust/{username}/id/{id}/serv/prod/id/{pid}");
         arrayString.add("/cust/{username}/id/{id}/serv/prod/id/{pid}/rt/getproductbyid");
+        arrayString.add("/cust/{username}/id/{id}/serv/prod/id/{pid}/rt/callcontrol");
         arrayString.add("/cust/{username}/id/{id}/serv/prod/id/{pid}/rttest/getproductbyid");
         arrayString.add("/cust/{username}/id/{id}/serv/prod/featureall");
         arrayString.add("/cust/{username}/id/{id}/serv/prod/feature?name=");
@@ -111,15 +112,14 @@ public class IndexController {
         arrayString.add("/cust/{username}/id/{id}/serv/wlnpro/id/{pid}/rt/downloadurl");
         arrayString.add("/cust/{username}/id/{id}/serv/wlnpro/featureall");
         arrayString.add("/cust/{username}/id/{id}/serv/wlnpro/feature?name=");
-        arrayString.add("/cust/{username}/id/{id}/serv/wlnpro/feature/summary?name=");        
-        
-        
+        arrayString.add("/cust/{username}/id/{id}/serv/wlnpro/feature/summary?name=");
+
         arrayString.add("/cust/{username}/sys/stop");
         arrayString.add("/cust/{username}/sys/clearlock");
         arrayString.add("/cust/{username}/sys/start");
         arrayString.add("/cust/{username}/sys/lock");
         arrayString.add("/cust/{username}/sys/reopenssnsdata");
-        arrayString.add("/cust/{username}/sys/restoressnsacc");        
+        arrayString.add("/cust/{username}/sys/restoressnsacc");
         arrayString.add("/cust/{username}/sys/custlist");
         arrayString.add("/cust/{username}/sys/cust/{customername}/status/{status}/substatus/{substatus}");
 
@@ -279,7 +279,7 @@ public class IndexController {
     int getAllmonStart(
             @PathVariable("username") String username,
             @PathVariable("id") String idSt,
-            @RequestParam(value = "app", required = true) String appSt,            
+            @RequestParam(value = "app", required = true) String appSt,
             HttpServletRequest request, HttpServletResponse response
     ) {
         ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
@@ -367,9 +367,8 @@ public class IndexController {
     }
 ////////////////////// 
 //////////////////////
-  
-/////////////////////    
 
+/////////////////////    
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/wlnpro/summary", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     ArrayList<ProdSummary> getwlnproprodSummary(
@@ -451,7 +450,6 @@ public class IndexController {
         return ret;
     }
 
-
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/wlnpro/featureall", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     ArrayList<String> getwlnprofeature(
@@ -511,7 +509,6 @@ public class IndexController {
     }
 
 /////////////////////////////////////     
-
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/qual/summary", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     ArrayList<ProdSummary> getqualprodSummary(
@@ -573,6 +570,7 @@ public class IndexController {
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
+
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/qual/id/{pid}/rt/availability", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     ArrayList getqualavail(
@@ -592,7 +590,6 @@ public class IndexController {
         return ret;
     }
 
-    
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/qual/id/{pid}/rt/address_matches", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     ArrayList getqualaddr(
@@ -611,7 +608,6 @@ public class IndexController {
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
-
 
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/qual/featureall", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
@@ -670,9 +666,8 @@ public class IndexController {
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
-    
-/////////////////////    
 
+/////////////////////    
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/ttv/summary", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     ArrayList<ProdSummary> getttvcprodSummary(
@@ -913,7 +908,6 @@ public class IndexController {
         return ret;
     }
 
-
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/rttest/getdevicestatus", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     String getprodwifiidrtTest(
@@ -932,6 +926,7 @@ public class IndexController {
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
+
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/getdevicestatus", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     ArrayList getwifiidrtdevstatus(
@@ -950,6 +945,7 @@ public class IndexController {
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
+
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/getdevices", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     ArrayList getwifiidrtstatus(
@@ -1270,6 +1266,24 @@ public class IndexController {
         return ret;
     }
 
+    @RequestMapping(value = "/cust/{username}/id/{id}/serv/prod/id/{pid}/rt/callcontrol", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public @ResponseBody
+    ArrayList getprodCCrtTest(
+            @PathVariable("username") String username,
+            @PathVariable("id") String idSt,
+            @PathVariable("pid") String pidSt,
+            HttpServletRequest request, HttpServletResponse response
+    ) {
+        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return null;
+        }
+        ArrayList<String> ret = afWebService.testSsnsprodByIdRT(username, idSt, pidSt, SsnsService.APP_PRODUCT, SsnsService.PROD_GET_CC, "");
+        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
+        return ret;
+    }
+
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/prod/id/{pid}/rt/getproductbyid", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     ArrayList getprodttvidrt(
@@ -1419,6 +1433,7 @@ public class IndexController {
         }
         return null;
     }
+
     @RequestMapping(value = "/cust/{username}/sys/backupssnsacc", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     WebStatus SystemBackupacc(@PathVariable("username") String username) {
@@ -1427,15 +1442,15 @@ public class IndexController {
         CustomerObj cust = afWebService.getCustomerIgnoreMaintenance(username, null);
         if (cust != null) {
             if (cust.getType() == CustomerObj.INT_ADMIN_USER) {
-                msg.setResponse(afWebService.systemBackupSsnsAcc()+"");
+                msg.setResponse(afWebService.systemBackupSsnsAcc() + "");
                 msg.setResult(true);
                 return msg;
             }
         }
 
         return null;
-    }    
-    
+    }
+
     @RequestMapping(value = "/cust/{username}/sys/restoressnsacc", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     WebStatus SystemRestoreacc(@PathVariable("username") String username) {
@@ -1449,15 +1464,15 @@ public class IndexController {
         CustomerObj cust = afWebService.getCustomerIgnoreMaintenance(username, null);
         if (cust != null) {
             if (cust.getType() == CustomerObj.INT_ADMIN_USER) {
-                msg.setResponse(afWebService.systemRestoresSsnsAcc()+"");
+                msg.setResponse(afWebService.systemRestoresSsnsAcc() + "");
                 msg.setResult(true);
                 return msg;
             }
         }
 
         return null;
-    }        
-        
+    }
+
     @RequestMapping(value = "/cust/{username}/sys/reopenssnsdata", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     WebStatus SystemReopen(@PathVariable("username") String username) {
