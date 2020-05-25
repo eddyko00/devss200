@@ -48,7 +48,8 @@ public class IndexController {
         arrayString.add("/server/url0/set?url=stop");
         arrayString.add("/server/filepath");
         arrayString.add("/server/filepath/set?path=");
-        //
+        arrayString.add("/server/restoressnsacc");
+//
         arrayString.add("/cust/add?email={email}&pass={pass}&firstName={firstName}&lastName={lastName}");
         arrayString.add("/cust/login?email={email}&pass={pass}");
         arrayString.add("/cust/{username}/login&pass={pass}");
@@ -89,7 +90,8 @@ public class IndexController {
         arrayString.add("/cust/{username}/id/{id}/serv/wifi?length={0 for all}");
         arrayString.add("/cust/{username}/id/{id}/serv/wifi/summary?length={0 for all}");
         arrayString.add("/cust/{username}/id/{id}/serv/wifi/id/{pid}");
-        arrayString.add("/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/getdevice");
+        arrayString.add("/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/getdevices");
+        arrayString.add("/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/getdeviceshdml");          
         arrayString.add("/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/getdevicestatus");
         arrayString.add("/cust/{username}/id/{id}/serv/wifi/id/{pid}/rttest/getdevicestatus");
         arrayString.add("/cust/{username}/id/{id}/serv/wifi/featureall");
@@ -119,7 +121,6 @@ public class IndexController {
         arrayString.add("/cust/{username}/sys/start");
         arrayString.add("/cust/{username}/sys/lock");
         arrayString.add("/cust/{username}/sys/reopenssnsdata");
-        arrayString.add("/cust/{username}/sys/restoressnsacc");
         arrayString.add("/cust/{username}/sys/custlist");
         arrayString.add("/cust/{username}/sys/cust/{customername}/status/{status}/substatus/{substatus}");
 
@@ -945,7 +946,6 @@ public class IndexController {
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
     }
-
     @RequestMapping(value = "/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/getdevices", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     ArrayList getwifiidrtstatus(
@@ -960,6 +960,25 @@ public class IndexController {
             return null;
         }
         String oper = SsnsService.WI_GetDevice;
+        ArrayList<String> ret = afWebService.testSsnsprodWifiByIdRT(username, idSt, pidSt, SsnsService.APP_WIFI, oper, "");
+        ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
+        return ret;
+    }
+
+    @RequestMapping(value = "/cust/{username}/id/{id}/serv/wifi/id/{pid}/rt/getdeviceshdml", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public @ResponseBody
+    ArrayList getwifiidrtstatushdml(
+            @PathVariable("username") String username,
+            @PathVariable("id") String idSt,
+            @PathVariable("pid") String pidSt,
+            HttpServletRequest request, HttpServletResponse response
+    ) {
+        ServiceAFweb.getServerObj().setCntControRequest(ServiceAFweb.getServerObj().getCntControRequest() + 1);
+        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return null;
+        }
+        String oper = SsnsService.WI_GetDeviceHDML;
         ArrayList<String> ret = afWebService.testSsnsprodWifiByIdRT(username, idSt, pidSt, SsnsService.APP_WIFI, oper, "");
         ServiceAFweb.getServerObj().setCntControlResp(ServiceAFweb.getServerObj().getCntControlResp() + 1);
         return ret;
@@ -1451,28 +1470,28 @@ public class IndexController {
         return null;
     }
 
-    @RequestMapping(value = "/cust/{username}/sys/restoressnsacc", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public @ResponseBody
-    WebStatus SystemRestoreacc(@PathVariable("username") String username) {
-        WebStatus msg = new WebStatus();
-        // remote is stopped
-        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
-            if (username.toLowerCase().equals(CKey.ADMIN_USERNAME.toLowerCase())) {
-                return null;
-            }
-        }
-        CustomerObj cust = afWebService.getCustomerIgnoreMaintenance(username, null);
-        if (cust != null) {
-            if (cust.getType() == CustomerObj.INT_ADMIN_USER) {
-                msg.setResponse(afWebService.systemRestoresSsnsAcc() + "");
-                msg.setResult(true);
-                return msg;
-            }
-        }
-
-        return null;
-    }
-
+    // using server/restoressnsacc
+//    @RequestMapping(value = "/cust/{username}/sys/restoressnsacc", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public @ResponseBody
+//    WebStatus SystemRestoreacc(@PathVariable("username") String username) {
+//        WebStatus msg = new WebStatus();
+//        // remote is stopped
+//        if (ServiceAFweb.getServerObj().isSysMaintenance() == true) {
+//            if (username.toLowerCase().equals(CKey.ADMIN_USERNAME.toLowerCase())) {
+//                return null;
+//            }
+//        }
+//        CustomerObj cust = afWebService.getCustomerIgnoreMaintenance(username, null);
+//        if (cust != null) {
+//            if (cust.getType() == CustomerObj.INT_ADMIN_USER) {
+//                msg.setResponse(afWebService.systemRestoresSsnsAcc() + "");
+//                msg.setResult(true);
+//                return msg;
+//            }
+//        }
+//
+//        return null;
+//    }
     @RequestMapping(value = "/cust/{username}/sys/reopenssnsdata", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public @ResponseBody
     WebStatus SystemReopen(@PathVariable("username") String username) {

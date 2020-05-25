@@ -602,7 +602,7 @@ public class SsnsRegression {
                         }
                         long exec = 0;
                         int totalTC = 0;
-
+                        String featName = accObj.getName();
                         ArrayList<String> response = new ArrayList();
                         ArrayList<String> labResponse = new ArrayList();
                         if (LABURL.length() == 0) {
@@ -610,10 +610,10 @@ public class SsnsRegression {
 
                             response = serviceAFweb.testSsnsprodPRocessByIdRT(CKey.ADMIN_USERNAME, null, accObj.getId() + "", accObj.getApp(), oper, LABURL);
                             totalTC++;
-                            String featName=  accObj.getName();
+
                             if (response != null) {
                                 if (oper.equals(SsnsService.PROD_GET_CC)) {
-                                    featName = accObj.getRet();
+                                    featName = accObj.getDown();
                                 }
                                 if (response.size() > 3) {
                                     response.add(0, featName);
@@ -636,6 +636,7 @@ public class SsnsRegression {
                                         }
                                         String[] featL = feat.split(":");
                                         String[] nameL = featName.split(":");
+
                                         if ((featL.length > 4) && (nameL.length > 4)) {
                                             if (!featL[2].equals(nameL[2])) {
                                                 passSt = R_FAIL;
@@ -653,6 +654,8 @@ public class SsnsRegression {
                                             if (!featL[3].equals(nameL[3])) {
                                                 passSt = R_FAIL;
                                             }
+                                        } else {
+                                            passSt = R_FAIL;
                                         }
                                     }
                                 }
@@ -684,7 +687,7 @@ public class SsnsRegression {
                                     }
                                 }
                             }
-                            passSt = accObj.getName() + ":" + passSt;
+                            passSt = featName + ":" + passSt;
                         }
 
                         SsReport reportObj = new SsReport();
@@ -975,8 +978,12 @@ public class SsnsRegression {
                 }
             }
             float execAvg = 0;
+            int execSec = 0;
             if (Pass > 0) {
-                execAvg = exec / Pass;
+                execAvg = exec / Pass / 100;
+                execSec = (int) execAvg;
+                execAvg = execSec;
+                execAvg = execAvg / 10;
             }
             String reportLine = app + ",result," + "pass," + Pass + ",fail," + Fail + ",exec," + execAvg;
             overviewList.add(reportLine);

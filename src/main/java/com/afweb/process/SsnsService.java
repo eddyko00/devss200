@@ -69,6 +69,7 @@ public class SsnsService {
     public static String PROD_GET_PROD = "getProductList";
     public static String PROD_GET_BYID = "getProductById";
     public static String PROD_GET_CC = "CallControl";
+    public static String APP_FEATT_TYPE_CC = "CC";
 
     public static String APP_FEAT_TYPE_APP = "APP";
     public static String APP_GET_APP = "getAppointment";
@@ -80,6 +81,7 @@ public class SsnsService {
     public static String WI_GetDeviceStatus = "getDeviceStatus";
     public static String WI_Callback = "callbackNotification";
     public static String WI_GetDevice = "getDevices";
+    public static String WI_GetDeviceHDML = "getDeviceshdml";
     public static String WI_config = "configureDeviceStatus";
 
     public static String APP_FEAT_TYPE_QUAL = "QUAL";
@@ -96,6 +98,81 @@ public class SsnsService {
     private SsnsDataImp ssnsDataImp = new SsnsDataImp();
 
 ////////////////////////////////////////////
+
+    public boolean updateSsnsQual(String oper, String address, ProductData pData, SsnsData dataObj, SsnsAcc NAccObj) {
+        try {
+            String featTTV = "";
+
+            if (oper.equals(QUAL_AVAL) || oper.equals(QUAL_MATCH)) {
+
+                String outputSt = null;
+                if (oper.equals(QUAL_AVAL)) {
+                    outputSt = SendSsnsQual(ServiceAFweb.URL_PRODUCT_PR, oper, address, null);
+                    if (outputSt == null) {
+                        return false;
+                    }
+                }
+                if (outputSt == null) {
+                    return false;
+                }
+                if (outputSt.length() == 0) {
+                    return false;
+                }
+//                    if (outputSt.length() < 80) {  // or test 
+//                        return false;
+//                    }
+                if (outputSt.indexOf("responseCode:400500") != -1) {
+                    return false;
+                }
+                featTTV = parseQualFeature(outputSt, oper);
+                if (featTTV == null) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+
+//            logger.info("> updateSsnsWifi feat " + featTTV);
+/////////////TTV   
+            if (NAccObj.getDown().equals("splunkflow")) {
+                ArrayList<String> flow = new ArrayList();
+                int faulure = getSsnsFlowTrace(dataObj, flow);
+                if (flow == null) {
+                    logger.info("> updateSsnsQual skip no flow");
+                    return false;
+                }
+                pData.setFlow(flow);
+
+                if (faulure == 1) {
+                    featTTV += ":splunkfailed";
+                }
+            }
+            logger.info("> updateSsnsQual feat " + featTTV);
+
+            NAccObj.setName(featTTV);
+
+            NAccObj.setTiid(address);
+
+            NAccObj.setUid(dataObj.getUid());
+            NAccObj.setApp(dataObj.getApp());
+            NAccObj.setOper(oper);
+
+//          NAccObj.setDown(""); // set by NAccObj
+            NAccObj.setRet(dataObj.getRet());
+            NAccObj.setExec(dataObj.getExec());
+
+            String nameSt = new ObjectMapper().writeValueAsString(pData);
+            NAccObj.setData(nameSt);
+
+            NAccObj.setUpdatedatel(dataObj.getUpdatedatel());
+            NAccObj.setUpdatedatedisplay(new java.sql.Date(dataObj.getUpdatedatel()));
+
+            return true;
+        } catch (Exception ex) {
+            logger.info("> updateSsnsQual Exception " + ex.getMessage());
+        }
+        return false;
+    }
 
     public static String parseQualFeature(String outputSt, String oper) {
 
@@ -247,6 +324,74 @@ public class SsnsService {
 
 ////////////////////////////////////////////    
 ///////////////////////////////////////////    
+
+    public boolean updateSsnsWLNPro(String oper, String custid, String catalogId, String bundleName,
+            String serviceType, String skuP, ProductData pData, SsnsData dataObj, SsnsAcc NAccObj) {
+        try {
+            String featTTV = "";
+
+            String outputSt = null;
+
+            outputSt = SendSsnsWLNPro(ServiceAFweb.URL_PRODUCT_PR, APP_GET_DOWNURL, custid, serviceType, skuP, null);
+            if (outputSt == null) {
+                return false;
+            }
+            if (outputSt == null) {
+                return false;
+            }
+            if (outputSt.length() < 80) {
+                // special case for no appointment {"status":{"statusCd":"200","statusTxt":"OK"},"appointmentList":[]}
+                return false;
+            }
+            if (outputSt.indexOf("responseCode:400500") != -1) {
+                return false;
+            }
+            featTTV = parseWLNProFeature(outputSt, oper, bundleName);
+
+            int failure = 0;
+            if (NAccObj.getDown().equals("splunkflow")) {
+
+                ArrayList<String> flow = new ArrayList();
+                failure = getSsnsFlowTrace(dataObj, flow);
+                if (flow == null) {
+                    logger.info("> updateSsnsWLNPro skip no flow");
+                    return false;
+                }
+                pData.setFlow(flow);
+            }
+
+            if (failure == 1) {
+                featTTV += ":splunkfailed";
+            }
+
+            logger.info("> updateSsnsWLNPro feat " + featTTV);
+            pData.setPostParam("");
+            NAccObj.setName(featTTV);
+            NAccObj.setBanid("");
+            NAccObj.setCusid(custid);
+            String tid = catalogId + ":" + serviceType + ":" + skuP + ":" + bundleName;
+            NAccObj.setTiid(tid);
+
+            NAccObj.setUid(dataObj.getUid());
+            NAccObj.setApp(APP_WLNPRO);
+            NAccObj.setOper(oper);
+
+//          NAccObj.setDown(""); // set by NAccObj
+            NAccObj.setRet(dataObj.getRet());
+            NAccObj.setExec(dataObj.getExec());
+
+            String nameSt = new ObjectMapper().writeValueAsString(pData);
+            NAccObj.setData(nameSt);
+
+            NAccObj.setUpdatedatel(dataObj.getUpdatedatel());
+            NAccObj.setUpdatedatedisplay(new java.sql.Date(dataObj.getUpdatedatel()));
+
+            return true;
+        } catch (Exception ex) {
+            logger.info("> updateSsnsWLNPro Exception " + ex.getMessage());
+        }
+        return false;
+    }
 
     public static String parseWLNProFeature(String outputSt, String oper, String bundleName) {
 
@@ -400,6 +545,107 @@ public class SsnsService {
     }
 
 ////////////////////////////////////////////    
+
+    public boolean updateSsnsTTVC(String oper, String banid, String prodid, String postParm, ProductData pData, SsnsData dataObj, SsnsAcc NAccObj) {
+        try {
+            String featTTV = "";
+            int legacyDiscount = 0;
+            int XQException = 0;
+            if (oper.equals(TT_GetSub) || oper.equals(TT_Vadulate) || oper.equals(TT_Quote) || oper.equals(TT_SaveOrder)) {
+                if ((banid.length() == 0) && (prodid.length() == 0)) {
+                    return false;
+                } else {
+                    String outputSt = null;
+                    outputSt = SendSsnsTTVC(ServiceAFweb.URL_PRODUCT_PR, TT_GetSub, banid, prodid, postParm, null);
+                    if (outputSt == null) {
+                        return false;
+                    }
+                    if (outputSt.length() == 0) {
+                        return false;
+                    }
+//                    if (outputSt.length() < 80) {  // or test 
+//                        return false;
+//                    }
+
+                    if (outputSt.indexOf("Legacy Discount") != -1) {
+                        String dataSt = ServiceAFweb.replaceAll("\"", "", outputSt);
+                        if (dataSt.indexOf("statusCd:400") != -1) {
+                            legacyDiscount = 1;
+                        }
+                    }
+
+                    if (outputSt.indexOf("responseCode:400500") != -1) {
+                        if (outputSt.indexOf("XQException") != -1) {
+                            XQException = 1;
+                        } else {
+                            return false;
+                        }
+                    }
+                    featTTV = parseTTVCFeature(outputSt, oper, postParm);
+                }
+            } else {
+                return false;
+            }
+
+//            logger.info("> updateSsnsTTVC feat " + featTTV);
+/////////////TTV   
+            int failure = 0;
+            if (NAccObj.getDown().equals("splunkflow")) {
+
+                ArrayList<String> flow = new ArrayList();
+                failure = getSsnsFlowTrace(dataObj, flow);
+                if (flow == null) {
+                    logger.info("> updateSsnsTTVC skip no flow");
+                    return false;
+                }
+                pData.setFlow(flow);
+
+            }
+
+            if (legacyDiscount == 1) {
+                featTTV += ":legacyDisc:failed";
+                if (failure == 0) {
+                    featTTV += ":splunkfailed";
+                }
+            }
+            if (XQException == 1) {
+                featTTV += ":XQException";
+                if (failure == 0) {
+                    featTTV += ":splunkfailed";
+                }
+            }
+            if (failure == 1) {
+                featTTV += ":splunkfailed";
+            }
+
+            logger.info("> updateSsnsTTVC feat " + featTTV);
+            pData.setPostParam(postParm);
+            NAccObj.setName(featTTV);
+            NAccObj.setBanid(banid);
+            NAccObj.setCusid(dataObj.getCusid());
+
+            NAccObj.setTiid(prodid);
+
+            NAccObj.setUid(dataObj.getUid());
+            NAccObj.setApp(APP_TTVC);
+            NAccObj.setOper(oper);
+
+//          NAccObj.setDown(""); // set by NAccObj
+            NAccObj.setRet(dataObj.getRet());
+            NAccObj.setExec(dataObj.getExec());
+
+            String nameSt = new ObjectMapper().writeValueAsString(pData);
+            NAccObj.setData(nameSt);
+
+            NAccObj.setUpdatedatel(dataObj.getUpdatedatel());
+            NAccObj.setUpdatedatedisplay(new java.sql.Date(dataObj.getUpdatedatel()));
+
+            return true;
+        } catch (Exception ex) {
+            logger.info("> updateSsnsAppointment Exception " + ex.getMessage());
+        }
+        return false;
+    }
 
     public static String parseTTVCFeature(String outputSt, String oper, String postParm) {
 
@@ -728,6 +974,133 @@ public class SsnsService {
 
 ////////////////////////////////////////////    
 
+    public boolean updateSsnsWifi(String oper, String banid, String uniquid, String prodClass, String serialid, String parm, String postParm, ProductData pData, SsnsData dataObj, SsnsAcc NAccObj) {
+        try {
+            String featTTV = "";
+            int connectDevice = 0;
+            int boost = 0;
+            int extender = 0;
+            if (oper.equals(WI_GetDeviceStatus) || oper.equals(WI_Callback) || oper.equals(WI_config)) {
+                if ((banid.length() == 0) && (serialid.length() == 0)) {
+                    return false;
+                } else {
+                    String outputSt = null;
+                    if (oper.equals(WI_GetDeviceStatus)) {
+                        outputSt = SendSsnsWifi(ServiceAFweb.URL_PRODUCT_PR, oper, banid, uniquid, prodClass, serialid, "", null);
+                        if (outputSt == null) {
+                            return false;
+                        }
+                        if (parm.length() > 0) {
+                            String outputStConnect = SendSsnsWifi(ServiceAFweb.URL_PRODUCT_PR, oper, banid, uniquid, prodClass, serialid, parm, null);
+                            if (outputStConnect.indexOf("macAddressTxt") != -1) {
+                                connectDevice = 1;
+                            }
+
+                        }
+
+                    } else if (oper.equals(WI_config)) {
+                        outputSt = SendSsnsWifi(ServiceAFweb.URL_PRODUCT_PR, WI_GetDeviceStatus, banid, uniquid, prodClass, serialid, "", null);
+                        if (outputSt == null) {
+                            return false;
+                        }
+                        String outputDeviceSt = SendSsnsWifi(ServiceAFweb.URL_PRODUCT_PR, WI_GetDevice, banid, uniquid, prodClass, serialid, "", null);
+                        if (outputDeviceSt.indexOf("Boost Device") != -1) {
+                            boost = 1;
+                        }
+                        if (outputDeviceSt.indexOf("WirelessExtender") != -1) {
+                            extender = 1;
+                        }
+                    }
+                    if (outputSt == null) {
+                        return false;
+                    }
+                    if (outputSt.length() == 0) {
+                        return false;
+                    }
+//                    if (outputSt.length() < 80) {  // or test 
+//                        return false;
+//                    }
+                    if (outputSt.indexOf("responseCode:400500") != -1) {
+                        return false;
+                    }
+                    featTTV = parseWifiFeature(outputSt, oper, prodClass);
+                    if (featTTV == null) {
+                        return false;
+                    }
+                    if (connectDevice == 1) {
+                        featTTV += ":" + parm;
+                    }
+                    if (boost == 1) {
+                        featTTV += ":BoostD";
+                    }
+                    if (extender == 1) {
+                        featTTV += ":ExtenderD";
+                    }
+
+                }
+            } else if (oper.equals(APP_CAN_APP)) {   //"cancelAppointment";
+                featTTV = APP_FEAT_TYPE_APP;
+                featTTV += ":" + oper;
+//                featTTV += ":" + host;
+//                if ((banid.length() == 0) && (cust.length() == 0)) {
+//                    featTTV += ":ContactEng";
+//                }
+            } else {
+                return false;
+            }
+            if (banid.length() >= 10) {
+                featTTV += ":NotaBan";
+            }
+//            logger.info("> updateSsnsWifi feat " + featTTV);
+/////////////TTV   
+            if (NAccObj.getDown().equals("splunkflow")) {
+                ArrayList<String> callback = new ArrayList();
+                int faulureCall = getSsnsFlowTraceWifiCallback(dataObj, callback, postParm);
+                if (faulureCall == 0) {
+                    pData.setCallback(callback);
+                }
+                ArrayList<String> flow = new ArrayList();
+                int faulure = getSsnsFlowTrace(dataObj, flow);
+                if (flow == null) {
+                    logger.info("> updateSsnsAppointment skip no flow");
+                    return false;
+                }
+                pData.setFlow(flow);
+
+                if (faulure == 1) {
+                    featTTV += ":splunkfailed";
+                }
+            }
+            logger.info("> updateSsnsWifi feat " + featTTV);
+            pData.setPostParam(postParm);
+            NAccObj.setName(featTTV);
+            NAccObj.setBanid(banid);
+            NAccObj.setCusid(dataObj.getCusid());
+
+            String deviceInfo = uniquid + ":" + prodClass + ":" + serialid + ":" + parm + ":end";
+            NAccObj.setTiid(deviceInfo);
+
+            NAccObj.setUid(dataObj.getUid());
+            NAccObj.setApp(dataObj.getApp());
+            NAccObj.setOper(oper);
+
+//          NAccObj.setDown(""); // set by NAccObj
+            NAccObj.setRet(dataObj.getRet());
+            NAccObj.setExec(dataObj.getExec());
+
+            String nameSt = new ObjectMapper().writeValueAsString(pData);
+            NAccObj.setData(nameSt);
+
+            NAccObj.setUpdatedatel(dataObj.getUpdatedatel());
+            NAccObj.setUpdatedatedisplay(new java.sql.Date(dataObj.getUpdatedatel()));
+
+            return true;
+        } catch (Exception ex) {
+            logger.info("> updateSsnsAppointment Exception " + ex.getMessage());
+        }
+        return false;
+    }
+
     public static String parseWifiFeature(String outputSt, String oper, String prodClass) {
 
         if (outputSt == null) {
@@ -979,6 +1352,9 @@ public class SsnsService {
         if (oper.equals(WI_GetDevice)) {
             url = ProductURL + "/v1/cmo/selfmgmt/wifimanagement/account/" + banid
                     + "/device";
+        } else if (oper.equals(WI_GetDeviceHDML)) {
+            url = ProductURL + "/v1/cmo/selfmgmt/wifimanagement/account/" + banid
+                    + "/device?source=hdml";
         } else if (oper.equals(WI_GetDeviceStatus)) {
 
             url = ProductURL + "/v1/cmo/selfmgmt/wifimanagement/account/" + banid
@@ -1085,7 +1461,7 @@ public class SsnsService {
             outputList.addAll(outList);
 
             return feat;
-        } else if (Oper.equals(WI_GetDevice)) {
+        } else if (Oper.equals(WI_GetDevice) || Oper.equals(WI_GetDeviceHDML)) {
 
             outputSt = SendSsnsWifi(LABURL, Oper, banid, uniquid, prodClass, serialid, Oper, inList);
             if (outputSt == null) {
@@ -1505,7 +1881,7 @@ public class SsnsService {
         outputSt = outputSt.replaceAll("^", "");
         ArrayList<String> outList = ServiceAFweb.prettyPrintJSON(outputSt);
 
-        featTTV = parseCallControlFeature(outputSt, dataObj.getOper());
+        featTTV = parseCallControlFeature(outputSt, oper);
 
         if (outputSt.indexOf("responseCode:400500") != -1) {
             featTTV += ":testfailed";
@@ -1519,6 +1895,210 @@ public class SsnsService {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////    
+
+    public boolean updateSsnsProdiuctInventoryByProdId(String oper, String banid, String prodid, ProductData pData, SsnsData dataObj, SsnsAcc NAccObj) {
+        try {
+            String custId = dataObj.getCusid();
+            String down = NAccObj.getDown();
+            String feat = "";
+            String outputSt = null;
+
+            outputSt = SendSsnsProdiuctInventory(ServiceAFweb.URL_PRODUCT_PR, banid, prodid, oper, null);
+            if (outputSt == null) {
+                return false;
+            }
+            if (outputSt.indexOf("responseCode:400500") != -1) {
+                return false;
+            }
+
+            if (oper.equals(APP_FEAT_TYPE_HSIC)) {
+                feat = parseProductInternetFeature(outputSt, dataObj.getOper());
+
+            } else if (oper.equals(APP_FEAT_TYPE_TTV)) {
+                feat = parseProductTtvFeature(outputSt, dataObj.getOper());
+
+            } else if (oper.equals(APP_FEATT_TYPE_SING)) {
+                ArrayList returnParm = new ArrayList();
+                feat = parseProductPhoneFeature(outputSt, dataObj.getOper(), returnParm);
+
+                if (returnParm.size() > 0) {
+                    custId = (String) returnParm.get(0);
+                    //////////
+                    if (feat.indexOf("noCallControl") == -1) {
+                        if (feat.indexOf("fifa") != -1) {
+                            custId += ":FIFA";
+                            custId += ":VoiceMail";
+                            ArrayList cmd = new ArrayList();
+                            cmd = pData.getCmd();
+                            cmd.add("get Call control"); // description
+                            cmd.add(PROD_GET_CC); // cmd
+                            pData.setCmd(cmd);
+                        } else {
+                            custId += ":COMPASS";
+                            if (feat.indexOf("VoiceMail") != -1) {
+                                custId += ":VoiceMail";
+                            }
+                            ArrayList cmd = new ArrayList();
+                            cmd = pData.getCmd();
+                            cmd.add("get Call control"); // description
+                            cmd.add(PROD_GET_CC); // cmd
+                            pData.setCmd(cmd);
+                        }
+                        String CCparL[] = custId.split(":");
+
+                        String phone = CCparL[0];
+                        String sys = CCparL[1];
+                        String outputCCSt = SendSsnsCallControl(ServiceAFweb.URL_PRODUCT_PR, banid, phone, sys, null);
+                        String featCC = parseCallControlFeature(outputCCSt, dataObj.getOper());
+                        down = featCC;
+                    }
+                    ///////////  
+                }
+
+            }
+
+//            logger.info("> updateSsnsProdiuctInventory feat " + featTTV);
+/////////////TTV   
+            ArrayList<String> flow = new ArrayList();
+            int faulure = getSsnsFlowTrace(dataObj, flow);
+            if (flow == null) {
+                logger.info("> updateSsnsProdiuctInventory skip no flow");
+                return false;
+            }
+
+            pData.setFlow(flow);
+            if (faulure == 1) {
+                feat += ":failed";
+            }
+            logger.info("> updateSsnsProdiuctInventory feat " + feat);
+            NAccObj.setName(feat);
+            NAccObj.setCusid(custId);
+            NAccObj.setBanid(banid);
+            NAccObj.setUid(dataObj.getUid());
+            NAccObj.setApp(dataObj.getApp());
+            NAccObj.setTiid(dataObj.getTiid());
+            NAccObj.setOper(oper);
+
+            NAccObj.setDown(down);
+            NAccObj.setRet(NAccObj.getRet());
+
+            NAccObj.setExec(dataObj.getExec());
+
+            String nameSt = new ObjectMapper().writeValueAsString(pData);
+            NAccObj.setData(nameSt);
+
+            NAccObj.setUpdatedatel(dataObj.getUpdatedatel());
+            NAccObj.setUpdatedatedisplay(new java.sql.Date(dataObj.getUpdatedatel()));
+
+            return true;
+        } catch (Exception ex) {
+            logger.info("> updateSsnsProdiuctInventory Exception " + ex.getMessage());
+        }
+        return false;
+    }
+
+    public boolean updateSsnsProdiuctInventory(String oper, String banid, String prodid, ProductData pData, SsnsData dataObj, SsnsAcc NAccObj) {
+        try {
+            String custId = dataObj.getCusid();
+            String down = NAccObj.getDown();
+            String outputSt = null;
+
+            outputSt = SendSsnsProdiuctInventory(ServiceAFweb.URL_PRODUCT_PR, banid, prodid, oper, null);
+            if (outputSt == null) {
+                return false;
+            }
+            if (outputSt.indexOf("responseCode:400500") != -1) {
+                return false;
+            }
+            String feat = "";
+            if (oper.equals(SsnsService.APP_FEAT_TYPE_HSIC)) {
+                feat = parseProductInternetFeature(outputSt, dataObj.getOper());
+
+            } else if (oper.equals(SsnsService.APP_FEAT_TYPE_TTV)) {
+                feat = parseProductTtvFeature(outputSt, dataObj.getOper());
+
+            } else if (oper.equals(SsnsService.APP_FEATT_TYPE_SING)) {
+                ArrayList returnParm = new ArrayList();
+                feat = parseProductPhoneFeature(outputSt, dataObj.getOper(), returnParm);
+                if (returnParm.size() > 0) {
+                    custId = (String) returnParm.get(0);
+                    //////////
+                    if (feat.indexOf("noCallControl") == -1) {
+                        if (feat.indexOf("fifa") != -1) {
+                            custId += ":FIFA";
+                            custId += ":VoiceMail";
+                            ArrayList cmd = new ArrayList();
+                            cmd = pData.getCmd();
+                            cmd.add("get Call control"); // description
+                            cmd.add(PROD_GET_CC); // cmd
+                            pData.setCmd(cmd);
+                        } else {
+                            custId += ":COMPASS";
+                            if (feat.indexOf("VoiceMail") != -1) {
+                                custId += ":VoiceMail";
+                            }
+                            ArrayList cmd = new ArrayList();
+                            cmd = pData.getCmd();
+                            cmd.add("get Call control"); // description
+                            cmd.add(PROD_GET_CC); // cmd
+                            pData.setCmd(cmd);
+                        }
+                        String CCparL[] = custId.split(":");
+
+                        String phone = CCparL[0];
+                        String sys = CCparL[1];
+                        String outputCCSt = SendSsnsCallControl(ServiceAFweb.URL_PRODUCT_PR, banid, phone, sys, null);
+                        String featCC = parseCallControlFeature(outputCCSt, dataObj.getOper());
+                        down = featCC;
+                    }
+                    ///////////  
+                }
+            }
+
+            if (feat == null) {
+                return false;
+            }
+
+//            logger.info("> updateSsnsProdiuctInventory feat " + featTTV);
+/////////////TTV  
+            ArrayList<String> flow = new ArrayList();
+            int faulure = getSsnsFlowTrace(dataObj, flow);
+            if (flow == null) {
+                logger.info("> updateSsnsProdiuctInventory skip no flow");
+                return false;
+            }
+
+            pData.setFlow(flow);
+
+            if (faulure == 1) {
+                feat += ":failed";
+            }
+            logger.info("> updateSsnsProdiuctInventory feat " + feat);
+            NAccObj.setName(feat);
+            NAccObj.setCusid(custId);
+            NAccObj.setBanid(banid);
+            NAccObj.setUid(dataObj.getUid());
+            NAccObj.setApp(dataObj.getApp());
+            NAccObj.setTiid(dataObj.getTiid());
+            NAccObj.setOper(oper);
+
+            NAccObj.setDown(down);
+            NAccObj.setRet(NAccObj.getRet());
+
+            NAccObj.setExec(dataObj.getExec());
+
+            String nameSt = new ObjectMapper().writeValueAsString(pData);
+            NAccObj.setData(nameSt);
+
+            NAccObj.setUpdatedatel(dataObj.getUpdatedatel());
+            NAccObj.setUpdatedatedisplay(new java.sql.Date(dataObj.getUpdatedatel()));
+
+            return true;
+        } catch (Exception ex) {
+            logger.info("> updateSsnsProdiuctInventory Exception " + ex.getMessage());
+        }
+        return false;
+    }
 
     public static String parseProductPhoneFeature(String outputSt, String oper, ArrayList returnParm) {
         if (outputSt == null) {
@@ -1756,7 +2336,7 @@ public class SsnsService {
                 }
             }
 
-            String featTTV = APP_FEAT_TYPE_HSIC;
+            String featTTV = APP_FEATT_TYPE_CC;
             featTTV += ":" + oper;
             featTTV += ":" + whiteList;
             featTTV += ":" + blackList;
