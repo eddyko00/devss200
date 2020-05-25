@@ -1,4 +1,4 @@
 #Only T need this - 
-HTTP_PROXY_HOST=webproxystatic-on.tsl.telus.com 
-HTTP_PROXY_PORT=8080
+#HTTP_PROXY_HOST=
+#HTTP_PROXY_PORT=8080
 
