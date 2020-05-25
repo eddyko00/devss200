@@ -6,7 +6,23 @@ public class CKey {
     public static String FileLocalPathTemp = "C:\\TEMP\\";
 
     public static final boolean LocalPCflag = true; // true;
-    public static final String MYSQL_SERVICE_HOST = "100.65.128.12";
+//sh-4.2$ env | grep MYSQL
+//MYSQL_PREFIX=/opt/rh/rh-mysql57/root/usr
+//MYSQL_VERSION=5.7
+//MYSQL_DATABASE=sampledb
+//MYSQL_PASSWORD=admin
+//MYSQL_PORT_3306_TCP_PORT=3306
+//MYSQL_PORT_3306_TCP=tcp://100.65.177.29:3306
+//MYSQL_SERVICE_PORT_MYSQL=3306
+//MYSQL_PORT_3306_TCP_PROTO=tcp
+//MYSQL_PORT_3306_TCP_ADDR=100.65.177.29
+//MYSQL_SERVICE_PORT=3306
+//MYSQL_USER=sa
+//MYSQL_ROOT_PASSWORD=admin
+//MYSQL_PORT=tcp://100.65.177.29:3306
+//MYSQL_SERVICE_HOST=100.65.177.29
+//sh-4.2$    
+    public static final String MYSQL_SERVICE_HOST = "100.65.177.29";
     //////////////////////
     // remember to update the application properties      
     public static final int LOCAL_MYSQL = 4; //jdbc:mysql://localhost:3306/db_sample       
